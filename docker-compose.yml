@@ -1,3 +1,5 @@
+version: '2'
+
 services:
 
 ### PHP-FPM Container #######################################
@@ -18,7 +20,7 @@ services:
     application:
         build: ./application
         volumes:
-            - ./:/var/www
+            - ../:/var/www
 
 ### Databases Data Container ################################
 

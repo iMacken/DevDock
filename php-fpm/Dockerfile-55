@@ -30,7 +30,7 @@ RUN pecl install mongodb
 
 RUN usermod -u 1000 www-data
 
-WORKDIR /var/www/oas_odp
+WORKDIR /var/www
 
 CMD ["php-fpm"]
 
