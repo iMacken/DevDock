@@ -13,7 +13,6 @@
 	- Memcached
 - **PHP 服务器:**
 	- NGINX
-	- Apache2
 - **PHP 编译工具:**
 	- PHP-FPM
 - **工具:**
@@ -22,7 +21,8 @@
 
 
 ## 安装
-1 - 克隆 `DevDock` 仓库:
+
+克隆 `DevDock` 仓库:
 
 ```bash
 git clone https://github.com/LaraDock/laradock.git
@@ -33,7 +33,7 @@ git clone https://github.com/LaraDock/laradock.git
 
 <br>
 <br>
-1 - 运行容器: *(在运行`docker-compose`命令之前，确认你在 `DevDock` 目录中*
+- 运行容器: *(在运行`docker-compose`命令之前，确认你在 `DevDock` 目录中*
 
 **例子:** 运行 NGINX 和 MySQL:
 
@@ -49,7 +49,7 @@ docker-compose up -d  nginx mysql
 
 
 <br>
-2 - 进入 Workspace 容器, 执行像 (Artisan, Composer, PHPUnit, Gulp, ...)等命令
+- 进入 Workspace 容器, 执行像 (Artisan, Composer, PHPUnit, Gulp, ...)等命令
 
 ```bash
 docker-compose exec workspace bash
@@ -98,25 +98,24 @@ docker-compose down
 ```
 
 
-小心这个命令,因为它也会删除你的数据容器。(如果你想保留你的数据你应该在上述命令后列出容器名称删除每个容器本身):*
+小心这个命令,因为它也会删除你的数据容器。(如果你想保留你的数据你应该在上述命令后列出容器名称删除每个容器本身)
 
 
 
 <br>
 ### 编辑Docker镜像
 
-1 - 找到你想修改的镜像的 `dockerfile` ,
+- 找到你想修改的镜像的 `dockerfile` ,
 <br>
 例如： `mysql` 在 `mysql/Dockerfile`.
 
-2 - 按你所要的编辑文件.
+- 按你所要的编辑文件.
 
-3 - 重新构建容器:
+- 重新构建容器:
 
 ```bash
 docker-compose build mysql
 ```
-更多信息在容器重建中 [点击这里](#Build-Re-build-Containers).
 
 
 
@@ -159,14 +158,14 @@ docker logs {container-name}
 
 <br>
 ### 使用 Redis
-1 - 首先务必用 `docker-compose up` 命令运行 (`redis`)容器.
+- 首先务必用 `docker-compose up` 命令运行 (`redis`)容器.
 
 
 ```bash
 docker-compose up -d redis
 ```
 
-2 - 打开你的Laravel的 `.env` 文件 然后 配置`redis`的`REDIS_HOST`
+- 以Laravel为例，打开 `.env` 文件 然后 配置`redis`的`REDIS_HOST`
 
 ```env
 REDIS_HOST=redis
@@ -185,20 +184,20 @@ REDIS_HOST=redis
 ],
 ```
 
-3 - 启用Redis缓存或者开启Session管理也在`.env`文件中用`redis`替换默认`file`设置`CACHE_DRIVER` 和 `SESSION_DRIVER` 
+- 启用Redis缓存或者开启Session管理也在`.env`文件中用`redis`替换默认`file`设置`CACHE_DRIVER` 和 `SESSION_DRIVER` 
 
 ```env
 CACHE_DRIVER=redis
 SESSION_DRIVER=redis
 ```
 
-4 - 最好务必通过Compose安装 `predis/predis` 包 `(~1.0)`:
+- 最好务必通过Compose安装 `predis/predis` 包 `(~1.0)`:
 
 ```bash
 composer require predis/predis:^1.0
 ```
 
-5 - 你可以用以下代码在Laravel中手动测试：
+- 你可以用以下代码在Laravel中手动测试：
 
 ```php
 \Cache::store('redis')->put('LaraDock', 'Awesome', 10);
@@ -287,7 +286,6 @@ docker-compose up -d mongo
 ```bash
 composer require jenssegers/mongodb
 ```
-更多细节内容 [点击这儿](https://github.com/jenssegers/laravel-mongodb#installation).
 
 - 测试:
 
@@ -316,13 +314,13 @@ PHP-CLI拓展应该安装到`workspace/Dockerfile`.
 
 #### 切换版本 PHP `7.0` 到 PHP `5.6`
 
-1 - 打开 `docker-compose.yml`。
+- 打开 `docker-compose.yml`。
 
-2 - 在PHP容器的 `Dockerfile-70`文件。
+- 在PHP容器的 `Dockerfile-70`文件。
 
-3 - 修改版本号, 用`Dockerfile-56`替换 `Dockerfile-70`
+- 修改版本号, 用`Dockerfile-56`替换 `Dockerfile-70`
 
-4 - 最后重建PHP容器
+- 最后重建PHP容器
 
 ```bash
 docker-compose build php
@@ -345,7 +343,7 @@ PHP-CLI安装在Workspace容器，改变PHP-CLI版本你需要编辑`workspace/D
 <br>
 ### 安装 xDebug
 
-1 - 首先在Workspace和PHP-FPM容器安装 `xDebug`:
+- 首先在Workspace和PHP-FPM容器安装 `xDebug`:
 <br>
 a) 打开 `docker-compose.yml` 文件
 <br>
@@ -373,7 +371,7 @@ e) 改为 `true`
     ...
 ```
 
-2 - 重建容器 `docker-compose build workspace php-fpm`
+- 重建容器 `docker-compose build workspace php-fpm`
 
 
 
@@ -382,13 +380,13 @@ e) 改为 `true`
 
 
 <br>
-### 使用自定义域名 (替换Docker的IP)
+### 使用自定义域名
 
 假定你的自定义域名是 `laravel.dev`
 
-1 - 打开 `/etc/hosts` 文件 添加以下内容，映射你的localhost 地址 `127.0.0.1` 为 `laravel.dev` 域名
+1 - 打开 `/etc/hosts` 文件 添加以下内容，映射你的localhost 地址 `192.168.99.100` 为 `laravel.dev` 域名
 ```bash
-127.0.0.1    laravel.dev
+192.168.99.100    laravel.dev
 ```
 
 2 - 打开你的浏览器访问 `{http://laravel.dev}`
