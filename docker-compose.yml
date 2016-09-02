@@ -2,47 +2,79 @@ version: '2'
 
 services:
 
+### Workspace Utilities Container ###########################
+
+    workspace:
+        build:
+            context: ./workspace
+            args:
+                - INSTALL_XDEBUG=false
+                - INSTALL_MONGO=false
+                - INSTALL_NODE=false
+                - COMPOSER_GLOBAL_INSTALL=false
+                - PUID=1000
+                - PGID=1000
+                - NODE_VERSION=stable
+        volumes_from:
+            - volumes_source
+        extra_hosts:
+            # IMPORTANT: Replace with your Docker Host IP (will be appended to /etc/hosts)
+            - "dockerhost:10.0.75.1"
+        tty: true
+
 ### PHP-FPM Container #######################################
 
     php-fpm:
         build:
             context: ./php-fpm
+            args:
+                - INSTALL_XDEBUG=false
+                - INSTALL_MONGO=false
+                - INSTALL_ZIP_ARCHIVE=false
+                - INSTALL_MEMCACHED=false
+                - INSTALL_OPCACHE=false
             dockerfile: Dockerfile-56
         volumes_from:
-            - application
+            - volumes_source
         expose:
             - "9000"
         links:
             - workspace
-
-### Laravel Application Code Container ######################
-
-    application:
-        build: ./application
-        volumes:
-            - ../:/var/www
-
-### Databases Data Container ################################
-
-    data:
-        build: ./data
-        volumes:
-            - /var/lib/mysql:/var/lib/mysql
-            - /var/lib/postgres:/var/lib/postgres
-            - /var/lib/mariadb:/var/lib/mariadb
-            - /var/lib/memcached:/var/lib/memcached
-            - /var/lib/redis:/data
-            - /var/lib/neo4j:/var/lib/neo4j/data
-            - /var/lib/mongo:/data/db
+        extra_hosts:
+            # IMPORTANT: Replace with your Docker Host IP (will be appended to /etc/hosts)
+            - "dockerhost:10.0.75.1"
+        environment:
+            # IMPORTANT: Set the Remote Interpreter entry matching name to `laravel`
+            - PHP_IDE_CONFIG="serverName=laravel"
 
 ### Nginx Server Container ##################################
 
     nginx:
-        build: ./nginx
+        build:
+            context: ./nginx
+            args:
+                - PHP_UPSTREAM=php-fpm
         volumes_from:
-            - application
+            - volumes_source
         volumes:
             - ./logs/nginx/:/var/log/nginx
+        ports:
+            - "80:80"
+            - "443:443"
+        links:
+            - php-fpm
+
+### Apache Server Container ##################################
+
+    apache2:
+        build:
+            context: ./apache2
+            args:
+                - PHP_SOCKET="php-fpm:9000"
+        volumes_from:
+            - volumes_source
+        volumes:
+            - ./logs/apache2:/var/log/apache2
         ports:
             - "80:80"
             - "443:443"
@@ -54,9 +86,9 @@ services:
     mysql:
         build: ./mysql
         volumes_from:
-            - data
+            - volumes_data
         ports:
-            - "3306:3306"
+            - "33061:3306"
         environment:
             MYSQL_DATABASE: homestead
             MYSQL_USER: homestead
@@ -70,14 +102,14 @@ services:
         ports:
             - "27017:27017"
         volumes_from:
-            - data
+            - volumes_data
 
 ### Redis Container #########################################
 
     redis:
         build: ./redis
         volumes_from:
-            - data
+            - volumes_data
         ports:
             - "6379:6379"
 
@@ -86,27 +118,58 @@ services:
     memcached:
         build: ./memcached
         volumes_from:
-            - data
+            - volumes_data
         ports:
             - "11211:11211"
         links:
             - php-fpm
-
-### Workspace Utilities Container ###########################
-
-    workspace:
-        build: ./workspace
-        volumes_from:
-            - application
-        tty: true
 
 ### Elasticsearch Container #######################################
 
     elasticsearch:
         build: ./elasticsearch
         volumes_from:
-            - data
+            - volumes_data
         ports:
             - "9200:9200"
             - "9300:9300"
+
+### phpMyAdmin Container ##################################
+
+    phpmyadmin:
+        build: ./phpmyadmin
+        environment:
+            PMA_ARBITRARY: 1
+            MYSQL_USER: homestead
+            MYSQL_PASSWORD: secret
+            MYSQL_ROOT_PASSWORD: root
+        volumes_from:
+            - volumes_data
+        ports:
+            - "8080:80"
+        links:
+            # for mysql container
+            - "mysql:db"
+            # for mariadb container
+            # - "mariadb:db"
+
+### Application Code Container ######################
+
+    volumes_source:
+        image: tianon/true
+        volumes:
+            - ./:/var/www
+
+### Databases Data Container ################################
+
+    volumes_data:
+        image: tianon/true
+        volumes:
+            - ./data/mysql:/var/lib/mysql
+            - ./data/elasticsearch:/var/lib/elasticsearch
+            - ./data/memcached:/var/lib/memcached
+            - ./data/redis:/data
+            - ./data/mongo:/data/db
+            - ./data/sessions:/sessions
+
         
