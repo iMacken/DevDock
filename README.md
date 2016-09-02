@@ -384,12 +384,12 @@ e) 改为 `true`
 
 假定你的自定义域名是 `laravel.dev`
 
-1 - 打开 `/etc/hosts` 文件 添加以下内容，映射你的localhost 地址 `192.168.99.100` 为 `laravel.dev` 域名
+- 打开 `/etc/hosts` 文件 添加以下内容，映射你的localhost 地址 `192.168.99.100` 为 `laravel.dev` 域名
 ```bash
 192.168.99.100    laravel.dev
 ```
 
-2 - 打开你的浏览器访问 `{http://laravel.dev}`
+- 打开你的浏览器访问 `{http://laravel.dev}`
 
 你可以在nginx配置文件自定义服务器名称,如下:
 
@@ -403,9 +403,9 @@ server_name laravel.dev;
 
 为启用全局Composer Install在容器构建中允许你安装composer的依赖，然后构建完成后就是可用的。
 
-1 - 打开 `docker-compose.yml` 文件
+- 打开 `docker-compose.yml` 文件
 
-2 - 在Workspace容器找到 `COMPOSER_GLOBAL_INSTALL` 选项并设置为 `true`
+- 在Workspace容器找到 `COMPOSER_GLOBAL_INSTALL` 选项并设置为 `true`
 
 例如:
 
@@ -417,9 +417,9 @@ server_name laravel.dev;
                 - COMPOSER_GLOBAL_INSTALL=true
     ...
 ```
-3 - 现在特价你的依赖关系到 `workspace/composer.json`
+- 现在特价你的依赖关系到 `workspace/composer.json`
 
-4 - 重建Workspace容器 `docker-compose build workspace`
+- 重建Workspace容器 `docker-compose build workspace`
 
 
 
@@ -427,9 +427,9 @@ server_name laravel.dev;
 ### 安装 Node + NVM
 
 在Workspace 容器安装 NVM 和 NodeJS
-1 - 打开 `docker-compose.yml` 文件
+- 打开 `docker-compose.yml` 文件
 
-2 - 在Workspace容器找到 `INSTALL_NODE` 选项设为 `true`
+- 在Workspace容器找到 `INSTALL_NODE` 选项设为 `true`
 
 例如:
 
@@ -442,7 +442,7 @@ server_name laravel.dev;
     ...
 ```
 
-3 - 重建容器 `docker-compose build workspace`
+- 重建容器 `docker-compose build workspace`
 
 
 #### 看到包含 `address already in use` 的错误
