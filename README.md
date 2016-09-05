@@ -34,9 +34,18 @@ git clone https://github.com/RystLee/DevDock.git
 
 <br>
 <br>
+
 1 - 运行容器: *(在运行`docker-compose`命令之前，确认你在 `DevDock` 目录中*
 
 **例子:** 运行 NGINX 和 MySQL:
+
+编辑网站配置文件 nginx/sites/site1.conf：
+比如： 
+```bash
+server_name laravel.dev;
+
+root /var/www/laravel/public;
+```
 
 ```bash
 docker-compose up -d  nginx mysql
