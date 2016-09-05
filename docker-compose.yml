@@ -14,6 +14,10 @@ services:
                 - PGID=1000
         volumes_from:
             - volumes_source
+        extra_hosts:
+            # IMPORTANT: Replace with your Docker Host IP (will be appended to /etc/hosts)
+            - "oa.test.oasgames.com:10.1.5.3"
+            - "test.adm.oasgames.com:10.1.5.3"
         tty: true
 
 ### PHP-FPM Container #######################################
@@ -25,7 +29,7 @@ services:
                 - INSTALL_ZIP_ARCHIVE=false
                 - INSTALL_MEMCACHED=false
                 - INSTALL_OPCACHE=false
-            dockerfile: Dockerfile-70
+            dockerfile: Dockerfile-56
         volumes_from:
             - volumes_source
         expose:
@@ -34,7 +38,8 @@ services:
             - workspace
         extra_hosts:
             # IMPORTANT: Replace with your Docker Host IP (will be appended to /etc/hosts)
-            - "dockerhost:10.0.75.1"
+            - "oa.test.oasgames.com:10.1.5.3"
+            - "test.adm.oasgames.com:10.1.5.3"
 
 ### Nginx Server Container ##################################
 
