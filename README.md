@@ -20,7 +20,10 @@
 
 
 ## 安装
+
 1 - 克隆 `DevDock` 仓库:
+
+进入到你的应用的上级目录：
 
 ```bash
 git clone https://github.com/RystLee/DevDock.git
