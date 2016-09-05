@@ -257,8 +257,6 @@ PHP-CLI安装在Workspace容器，改变PHP-CLI版本你需要编辑`workspace/D
 
 
 
-<<<<<<< HEAD
-=======
 
 <br>
 
@@ -266,7 +264,6 @@ PHP-CLI安装在Workspace容器，改变PHP-CLI版本你需要编辑`workspace/D
 
 
 <br>
-<<<<<<< HEAD
 
 ### 使用自定义域名
 
