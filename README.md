@@ -23,7 +23,7 @@
 1 - 克隆 `DevDock` 仓库:
 
 ```bash
-git clone https://github.com/LaraDock/laradock.git
+git clone https://github.com/RystLee/DevDock.git
 ```
 
 
@@ -47,13 +47,13 @@ docker-compose up -d  nginx mysql
 
 
 <br>
-2 - 进入 Workspace 容器, 执行像 (Artisan, Composer, PHPUnit, Gulp, ...)等命令
+2 - 进入 Workspace 容器, 执行像 (Artisan, Composer, Gulp, ...)等命令
 
 ```bash
 docker-compose exec workspace bash
 ```
 <br />
-增加 `--user=laradock` (例如 `docker-compose exec --user=laradock workspace bash`) 作为您的主机的用户创建的文件. (你可以从 `docker-compose.yml`修改 PUID (User id) 和 PGID (group id) 值 ).
+增加 `--user=laradock` (例如 `docker-compose exec --user=devdock workspace bash`) 作为您的主机的用户创建的文件. (你可以从 `docker-compose.yml`修改 PUID (User id) 和 PGID (group id) 值 ).
 
 
 <br>
@@ -96,7 +96,8 @@ docker-compose down
 ```
 
 
-小心这个命令,因为它也会删除你的数据容器。(如果你想保留你的数据你应该在上述命令后列出容器名称删除每个容器本身):*
+小心这个命令,因为它也会删除你的数据容器。(如果你想保留你的数据你应该在上述命令后列出容器名称删除每个容器本身)
+
 
 
 
@@ -114,7 +115,6 @@ docker-compose down
 ```bash
 docker-compose build mysql
 ```
-更多信息在容器重建中 [点击这里](#Build-Re-build-Containers).
 
 
 
@@ -164,7 +164,8 @@ docker logs {container-name}
 docker-compose up -d redis
 ```
 
-2 - 打开你的Laravel的 `.env` 文件 然后 配置`redis`的`REDIS_HOST`
+
+- 以Laravel为例，打开 `.env` 文件 然后 配置`redis`的`REDIS_HOST`
 
 ```env
 REDIS_HOST=redis
@@ -183,23 +184,26 @@ REDIS_HOST=redis
 ],
 ```
 
-3 - 启用Redis缓存或者开启Session管理也在`.env`文件中用`redis`替换默认`file`设置`CACHE_DRIVER` 和 `SESSION_DRIVER` 
+
+- 启用Redis缓存或者开启Session管理也在`.env`文件中用`redis`替换默认`file`设置`CACHE_DRIVER` 和 `SESSION_DRIVER` 
 
 ```env
 CACHE_DRIVER=redis
 SESSION_DRIVER=redis
 ```
 
-4 - 最好务必通过Compose安装 `predis/predis` 包 `(~1.0)`:
+
+- 最好务必通过Compose安装 `predis/predis` 包 `(~1.0)`:
 
 ```bash
 composer require predis/predis:^1.0
 ```
 
-5 - 你可以用以下代码在Laravel中手动测试：
+
+- 你可以用以下代码在Laravel中手动测试：
 
 ```php
-\Cache::store('redis')->put('LaraDock', 'Awesome', 10);
+\Cache::store('redis')->put('DevDock', 'Awesome', 10);
 ```
 
 
@@ -250,20 +254,28 @@ PHP-CLI安装在Workspace容器，改变PHP-CLI版本你需要编辑`workspace/D
 
 
 
+<<<<<<< HEAD
+=======
+
+<br>
+
 ### [Misc]
 
 
 <br>
-### 使用自定义域名 (替换Docker的IP)
+<<<<<<< HEAD
+
+### 使用自定义域名
 
 假定你的自定义域名是 `laravel.dev`
 
-1 - 打开 `/etc/hosts` 文件 添加以下内容，映射你的localhost 地址 `127.0.0.1` 为 `laravel.dev` 域名
+- 打开 `/etc/hosts` 文件 添加以下内容，映射你的localhost 地址 `192.168.99.100` 为 `laravel.dev` 域名
 ```bash
-127.0.0.1    laravel.dev
+192.168.99.100    laravel.dev
 ```
 
-2 - 打开你的浏览器访问 `{http://laravel.dev}`
+- 打开你的浏览器访问 `{http://laravel.dev}`
+
 
 你可以在nginx配置文件自定义服务器名称,如下:
 
@@ -277,9 +289,11 @@ server_name laravel.dev;
 
 为启用全局Composer Install在容器构建中允许你安装composer的依赖，然后构建完成后就是可用的。
 
-1 - 打开 `docker-compose.yml` 文件
 
-2 - 在Workspace容器找到 `COMPOSER_GLOBAL_INSTALL` 选项并设置为 `true`
+- 打开 `docker-compose.yml` 文件
+
+- 在Workspace容器找到 `COMPOSER_GLOBAL_INSTALL` 选项并设置为 `true`
+
 
 例如:
 
@@ -291,9 +305,10 @@ server_name laravel.dev;
                 - COMPOSER_GLOBAL_INSTALL=true
     ...
 ```
-3 - 现在特价你的依赖关系到 `workspace/composer.json`
 
-4 - 重建Workspace容器 `docker-compose build workspace`
+- 现在特价你的依赖关系到 `workspace/composer.json`
+
+- 重建Workspace容器 `docker-compose build workspace`
 
 
 
@@ -301,9 +316,10 @@ server_name laravel.dev;
 ### 安装 Node + NVM
 
 在Workspace 容器安装 NVM 和 NodeJS
-1 - 打开 `docker-compose.yml` 文件
 
-2 - 在Workspace容器找到 `INSTALL_NODE` 选项设为 `true`
+- 打开 `docker-compose.yml` 文件
+
+- 在Workspace容器找到 `INSTALL_NODE` 选项设为 `true`
 
 例如:
 
@@ -316,7 +332,8 @@ server_name laravel.dev;
     ...
 ```
 
-3 - 重建容器 `docker-compose build workspace`
+
+- 重建容器 `docker-compose build workspace`
 
 
 #### 看到包含 `address already in use` 的错误

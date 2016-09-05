@@ -32,6 +32,9 @@ services:
             - "9000"
         links:
             - workspace
+        extra_hosts:
+            # IMPORTANT: Replace with your Docker Host IP (will be appended to /etc/hosts)
+            - "dockerhost:10.0.75.1"
 
 ### Nginx Server Container ##################################
 
@@ -57,7 +60,7 @@ services:
         volumes_from:
             - volumes_data
         ports:
-            - "3306:3306"
+            - "33061:3306"
         environment:
             MYSQL_DATABASE: homestead
             MYSQL_USER: homestead
@@ -137,3 +140,4 @@ services:
             - /var/lib/sessions:/sessions
 
 ### Add more Containers below ###############################
+

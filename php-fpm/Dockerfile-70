@@ -25,6 +25,7 @@ RUN apt-get update && \
 # Install the PHP mcrypt extention
 RUN docker-php-ext-install mcrypt
 
+<<<<<<< HEAD
 # Install the PHP mysql extention
 RUN docker-php-ext-install mysql
 
@@ -38,6 +39,11 @@ RUN docker-php-ext-install pdo_mysql
 RUN pecl install memcache && \
     docker-php-ext-enable memcache
 
+=======
+# Install the PHP pdo_mysql extention
+RUN docker-php-ext-install pdo_mysql
+
+>>>>>>> 570ac5cf581b0858e21db61e6f7cdf18711fe4ad
 # Install the PHP gd library
 RUN docker-php-ext-configure gd \
         --enable-gd-native-ttf \

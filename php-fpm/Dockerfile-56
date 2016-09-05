@@ -56,6 +56,28 @@ RUN docker-php-ext-install gd && \
 # Example:
 #   - INSTALL_ZIP_ARCHIVE=true
 
+<<<<<<< HEAD
+=======
+# xDebug:
+ARG INSTALL_XDEBUG=true
+RUN if [ ${INSTALL_XDEBUG} = true ]; then \
+    # Install the xdebug extension
+    pecl install xdebug && \
+    docker-php-ext-enable xdebug \
+;fi
+
+# Copy xdebug configration for remote debugging
+COPY ./xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
+
+# MongoDB:
+ARG INSTALL_MONGO=true
+RUN if [ ${INSTALL_MONGO} = true ]; then \
+    # Install the mongodb extension
+    pecl install mongodb && \
+    docker-php-ext-enable mongodb \
+;fi
+
+>>>>>>> 570ac5cf581b0858e21db61e6f7cdf18711fe4ad
 # ZipArchive:
 ARG INSTALL_ZIP_ARCHIVE=true
 RUN if [ ${INSTALL_ZIP_ARCHIVE} = true ]; then \
