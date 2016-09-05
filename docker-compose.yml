@@ -2,45 +2,46 @@ version: '2'
 
 services:
 
+### Workspace Utilities Container ###########################
+
+    workspace:
+        build:
+            context: ./workspace
+            args:
+                - INSTALL_NODE=false
+                - COMPOSER_GLOBAL_INSTALL=false
+                - PUID=1000
+                - PGID=1000
+        volumes_from:
+            - volumes_source
+        tty: true
+
 ### PHP-FPM Container #######################################
 
     php-fpm:
         build:
             context: ./php-fpm
+            args:
+                - INSTALL_ZIP_ARCHIVE=false
+                - INSTALL_MEMCACHED=false
+                - INSTALL_OPCACHE=false
             dockerfile: Dockerfile-56
         volumes_from:
-            - application
+            - volumes_source
         expose:
             - "9000"
         links:
             - workspace
 
-### Laravel Application Code Container ######################
-
-    application:
-        build: ./application
-        volumes:
-            - ../:/var/www
-
-### Databases Data Container ################################
-
-    data:
-        build: ./data
-        volumes:
-            - /var/lib/mysql:/var/lib/mysql
-            - /var/lib/postgres:/var/lib/postgres
-            - /var/lib/mariadb:/var/lib/mariadb
-            - /var/lib/memcached:/var/lib/memcached
-            - /var/lib/redis:/data
-            - /var/lib/neo4j:/var/lib/neo4j/data
-            - /var/lib/mongo:/data/db
-
 ### Nginx Server Container ##################################
 
     nginx:
-        build: ./nginx
+        build:
+            context: ./nginx
+            args:
+                - PHP_UPSTREAM=php-fpm
         volumes_from:
-            - application
+            - volumes_source
         volumes:
             - ./logs/nginx/:/var/log/nginx
         ports:
@@ -54,7 +55,7 @@ services:
     mysql:
         build: ./mysql
         volumes_from:
-            - data
+            - volumes_data
         ports:
             - "3306:3306"
         environment:
@@ -70,14 +71,14 @@ services:
         ports:
             - "27017:27017"
         volumes_from:
-            - data
+            - volumes_data
 
 ### Redis Container #########################################
 
     redis:
         build: ./redis
         volumes_from:
-            - data
+            - volumes_data
         ports:
             - "6379:6379"
 
@@ -86,27 +87,53 @@ services:
     memcached:
         build: ./memcached
         volumes_from:
-            - data
+            - volumes_data
         ports:
             - "11211:11211"
         links:
             - php-fpm
-
-### Workspace Utilities Container ###########################
-
-    workspace:
-        build: ./workspace
-        volumes_from:
-            - application
-        tty: true
 
 ### Elasticsearch Container #######################################
 
     elasticsearch:
         build: ./elasticsearch
         volumes_from:
-            - data
+            - volumes_data
         ports:
             - "9200:9200"
             - "9300:9300"
-        
+
+### phpMyAdmin Container ##################################
+
+    phpmyadmin:
+        build: ./phpmyadmin
+        environment:
+            PMA_ARBITRARY: 1
+            MYSQL_USER: homestead
+            MYSQL_PASSWORD: secret
+            MYSQL_ROOT_PASSWORD: root
+        volumes_from:
+            - volumes_data
+        ports:
+            - "8080:80"
+        links:
+            - "mysql:db"
+
+### Application Code Container ######################
+
+    volumes_source:
+        build: ./volumes/application
+        volumes:
+            - ../:/var/www
+
+### Databases Data Container ################################
+
+    volumes_data:
+        build: ./volumes/data
+        volumes:
+            - /var/lib/mysql:/var/lib/mysql
+            - /var/lib/memcached:/var/lib/memcached
+            - /var/lib/redis:/data
+            - /var/lib/sessions:/sessions
+
+### Add more Containers below ###############################

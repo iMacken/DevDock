@@ -1,6 +1,6 @@
 FROM debian:jessie
 
-MAINTAINER Macken <rystlee100@gmail.com>
+MAINTAINER Mahmoud Zalt <mahmoud@zalt.me>
 
 WORKDIR /var/www
 
