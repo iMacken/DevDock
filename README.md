@@ -64,7 +64,7 @@ docker-compose up -d  nginx mysql
 docker-compose exec workspace bash
 ```
 <br />
-增加 `--user=laradock` (例如 `docker-compose exec --user=devdock workspace bash`) 作为您的主机的用户创建的文件. (你可以从 `docker-compose.yml`修改 PUID (User id) 和 PGID (group id) 值 ).
+增加 `--user=devdock` (例如 `docker-compose exec --user=devdock workspace bash`) 作为您的主机的用户创建的文件. (你可以从 `docker-compose.yml`修改 PUID (User id) 和 PGID (group id) 值 ).
 
 
 <br>
