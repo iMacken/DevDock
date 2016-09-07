@@ -51,38 +51,12 @@ RUN apt-get update && \
         nano \
         postgresql-client \
     && apt-get clean
-<<<<<<< HEAD
-
-
-# Composer:
-# Install composer and add its bin to the PATH.
-RUN curl -s http://getcomposer.org/installer | php && \
-    mv composer.phar /usr/local/bin/composer
-
-# Source the bash
-RUN . ~/.bashrc
-
-
-# Non-Root User:
-# Add a non-root user to prevent files being created with root permissions on host machine.
-ARG PUID=1000
-ARG PGID=1000
-RUN groupadd -g $PGID devdock && \
-    useradd -u $PUID -g devdock -m devdock
-
-
-# Composer:
-# Add the composer.json
-COPY ./composer.json /home/devdock/.composer/composer.json
-=======
-
 
 # Composer:
 # Install composer and add its bin to the PATH.
 RUN curl -s http://getcomposer.org/installer | php && \
     echo "export PATH=${PATH}:/var/www/laravel/vendor/bin" >> ~/.bashrc && \
     mv composer.phar /usr/local/bin/composer
->>>>>>> 570ac5cf581b0858e21db61e6f7cdf18711fe4ad
 
 # Make sure that ~/.composer belongs to devdock
 RUN chown -R devdock:devdock /home/devdock/.composer
