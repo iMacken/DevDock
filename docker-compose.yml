@@ -72,15 +72,6 @@ services:
             MYSQL_PASSWORD: secret
             MYSQL_ROOT_PASSWORD: root
 
-### MongoDB Container #######################################
-
-    mongo:
-        build: ./mongo
-        ports:
-            - "27017:27017"
-        volumes_from:
-            - volumes_data
-
 ### Redis Container #########################################
 
     redis:
