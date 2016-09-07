@@ -52,58 +52,6 @@ RUN apt-get update && \
         postgresql-client \
     && apt-get clean
 
-# Composer:
-# Install composer and add its bin to the PATH.
-RUN curl -s http://getcomposer.org/installer | php && \
-    echo "export PATH=${PATH}:/var/www/laravel/vendor/bin" >> ~/.bashrc && \
-    mv composer.phar /usr/local/bin/composer
-
-# Make sure that ~/.composer belongs to devdock
-RUN chown -R devdock:devdock /home/devdock/.composer
-USER devdock
-
-# Check if global install need to be ran
-ARG COMPOSER_GLOBAL_INSTALL=true
-ENV COMPOSER_GLOBAL_INSTALL ${COMPOSER_GLOBAL_INSTALL}
-RUN if [ ${COMPOSER_GLOBAL_INSTALL} = true ]; then \
-    # run the install
-    composer global install \
-;fi
-
-
-USER devdock
-
-
-# Node / NVM:
-# Check if NVM needs to be installed
-ARG NODE_VERSION=stable
-ENV NODE_VERSION ${NODE_VERSION}
-ARG INSTALL_NODE=true
-ENV INSTALL_NODE ${INSTALL_NODE}
-ENV NVM_DIR /home/devdock/.nvm
-RUN if [ ${INSTALL_NODE} = true ]; then \
-    # Install nvm (A Node Version Manager)
-    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.6/install.sh | bash && \
-        . ~/.nvm/nvm.sh && \
-        nvm install ${NODE_VERSION} && \
-        nvm use ${NODE_VERSION} && \
-        nvm alias ${NODE_VERSION} && \
-        npm install -g gulp bower \
-;fi
-
-# Wouldn't execute when added to the RUN statement in the above block
-# Source NVM when loading bash since ~/.profile isn't loaded on non-login shell
-RUN if [ ${INSTALL_NODE} = true ]; then \
-    echo "" >> ~/.bashrc && \
-    echo 'export NVM_DIR="$HOME/.nvm"' >> ~/.bashrc && \
-    echo '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm' >> ~/.bashrc \
-;fi
-
-
-
-#--------------------------------------------------------------------------
-# Final Touch
-#--------------------------------------------------------------------------
 
 
 #--------------------------------------------------------------------------
@@ -112,36 +60,8 @@ RUN if [ ${INSTALL_NODE} = true ]; then \
 # Optional Software's will only be installed if you set them to `true`
 # in the `docker-compose.yml` before the build.
 #
-#   - INSTALL_XDEBUG=           false
-#   - INSTALL_MONGO=            false
 #   - COMPOSER_GLOBAL_INSTALL=  false
 #   - INSTALL_NODE=             false
-#   - INSTALL_DRUSH=            false
-
-# xDebug:
-# Check if xDebug needs to be installed
-ARG INSTALL_XDEBUG=true
-ENV INSTALL_XDEBUG ${INSTALL_XDEBUG}
-RUN if [ ${INSTALL_XDEBUG} = true ]; then \
-    # Load the xdebug extension only with phpunit commands
-    apt-get update && \
-    apt-get install -y --force-yes php7.0-xdebug && \
-    sed -i 's/^/;/g' /etc/php/7.0/cli/conf.d/20-xdebug.ini && \
-    echo "alias phpunit='php -dzend_extension=xdebug.so /var/www/laravel/vendor/bin/phpunit'" >> ~/.bashrc \
-;fi
-# ADD for REMOTE debugging
-COPY ./xdebug.ini /etc/php/7.0/cli/conf.d/xdebug.ini
-
-
-# MongoDB:
-# Check if Mongo needs to be installed
-ARG INSTALL_MONGO=true
-ENV INSTALL_MONGO ${INSTALL_MONGO}
-RUN if [ ${INSTALL_MONGO} = true ]; then \
-    # Install the mongodb extension
-    pecl install mongodb && \
-    echo "extension=mongodb.so" >> /etc/php/7.0/cli/php.ini \
-;fi
 
 
 # Non-Root User:
@@ -151,14 +71,11 @@ ARG PGID=1000
 RUN groupadd -g $PGID devdock && \
     useradd -u $PUID -g devdock -m devdock
 
+USER devdock
 
 # Composer:
 # Add the composer.json
 COPY ./composer.json /home/devdock/.composer/composer.json
-
-# Make sure that ~/.composer belongs to devdock
-RUN chown -R devdock:devdock /home/devdock/.composer
-USER devdock
 
 # Check if global install need to be ran
 ARG COMPOSER_GLOBAL_INSTALL=true
@@ -167,9 +84,6 @@ RUN if [ ${COMPOSER_GLOBAL_INSTALL} = true ]; then \
     # run the install
     composer global install \
 ;fi
-
-
-USER devdock
 
 
 # Node / NVM:
@@ -204,15 +118,9 @@ RUN if [ ${INSTALL_NODE} = true ]; then \
 #--------------------------------------------------------------------------
 
 # Clean up
-<<<<<<< HEAD
-#USER root
-#RUN apt-get clean && \
-#    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-=======
 USER root
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
->>>>>>> 570ac5cf581b0858e21db61e6f7cdf18711fe4ad
 
 # Set default work directory
 WORKDIR /var/www
