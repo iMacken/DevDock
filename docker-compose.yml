@@ -8,8 +8,8 @@ services:
         build:
             context: ./workspace
             args:
-                - INSTALL_NODE=false
-                - COMPOSER_GLOBAL_INSTALL=false
+                - INSTALL_NODE=true
+                - COMPOSER_GLOBAL_INSTALL=true
                 - PUID=1000
                 - PGID=1000
         volumes_from:
@@ -27,7 +27,7 @@ services:
             context: ./php-fpm
             args:
                 - INSTALL_ZIP_ARCHIVE=false
-                - INSTALL_MEMCACHED=false
+                - INSTALL_MEMCACHED=true
                 - INSTALL_OPCACHE=false
             dockerfile: Dockerfile-56
         volumes_from:
