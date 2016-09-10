@@ -52,7 +52,13 @@ RUN apt-get update && \
         postgresql-client \
     && apt-get clean
 
+# Install composer and add its bin to the PATH.
+RUN curl -s http://getcomposer.org/installer | php && \
+    echo "export PATH=${PATH}:/var/www/laravel/vendor/bin" >> ~/.bashrc && \
+    mv composer.phar /usr/local/bin/composer
 
+# Source the bash
+RUN . ~/.bashrc
 
 #--------------------------------------------------------------------------
 # Optional Software's Installation
