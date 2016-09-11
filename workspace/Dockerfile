@@ -73,11 +73,13 @@ ARG PGID=1000
 RUN groupadd -g $PGID devdock && \
     useradd -u $PUID -g devdock -m devdock
 
-USER devdock
-
 # Composer:
-# Add the composer.json
+# Add the composer.json 
 COPY ./composer.json /home/devdock/.composer/composer.json
+
+# Make sure that ~/.composer belongs to devdock    
+RUN chown -R devdock:devdock /home/devdock/.composer
+USER devdock
 
 # Check if global install need to be ran
 ARG COMPOSER_GLOBAL_INSTALL=true
