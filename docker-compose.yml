@@ -121,19 +121,20 @@ services:
 ### Application Code Container ######################
 
     volumes_source:
-        build: ./volumes/application
+        image: tianon/true
         volumes:
             - ../:/var/www
 
 ### Databases Data Container ################################
 
     volumes_data:
-        build: ./volumes/data
+        image: tianon/true
         volumes:
-            - /var/lib/mysql:/var/lib/mysql
-            - /var/lib/memcached:/var/lib/memcached
-            - /var/lib/redis:/data
-            - /var/lib/sessions:/sessions
+            - ./data/mysql:/var/lib/mysql
+            - ./data/memcached:/var/lib/memcached
+            - ./data/redis:/data
+            - ./data/sessions:/sessions
+            - ./data/elasticsearch/data:/usr/share/elasticsearch/data
 
 ### Add more Containers below ###############################
 
