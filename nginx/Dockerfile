@@ -1,6 +1,6 @@
 FROM nginx:alpine
 
-MAINTAINER Mahmoud Zalt <mahmoud@zalt.me>
+MAINTAINER Macken <rystlee100@gmail.com>
 
 ADD nginx.conf /etc/nginx/
 COPY sites/*.conf /etc/nginx/sites-available/
