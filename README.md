@@ -261,14 +261,8 @@ docker-compose build php
 
 >说明: PHP-CLI只用于执行Artisan和Composer命令，不服务于你的应用代码，这是PHP-FPM的工作，所以编辑PHP-CLI的版本不是很重要。
 PHP-CLI安装在Workspace容器，改变PHP-CLI版本你需要编辑`workspace/Dockerfile`.
-现在你必须手动修改PHP-FPM的`Dockerfile`或者创建一个新的。 (可以考虑贡献功能).
+现在你必须手动修改PHP-FPM的`Dockerfile`或者创建一个新的。
 
-
-
-
-<br>
-
-### [Misc]
 
 
 <br>
