@@ -343,6 +343,8 @@ server_name laravel.dev;
 
 - 重建容器 `docker-compose build workspace`
 
-
+### DEBUG
 #### 看到包含 `address already in use` 的错误
 确保你想运行的服务端口(80, 3306, etc.)不是已经被其他程序使用，例如`apache`/`httpd`服务或其他安装的开发工具
+#### mysql 等容器报 Connection refused 错误
+请将相关配置文件中的 host 指定为相应的容器名称，如：host: mysql
