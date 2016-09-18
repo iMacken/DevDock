@@ -36,6 +36,7 @@ RUN apt-get update && \
         php7.0-zip \
         php7.0-memcached \
         php7.0-gd \
+        php7.0-intl \
         pkg-config \
         php-dev \
         libcurl4-openssl-dev \
