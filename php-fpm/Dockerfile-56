@@ -20,7 +20,8 @@ RUN apt-get update && \
         libpng12-dev \
         libfreetype6-dev \
         libssl-dev \
-        libmcrypt-dev
+        libmcrypt-dev \
+        libicu-dev
 
 # Install the PHP mcrypt extention
 RUN docker-php-ext-install mcrypt
@@ -37,6 +38,10 @@ RUN docker-php-ext-install pdo_mysql
 # Install the php memcache
 RUN pecl install memcache && \
     docker-php-ext-enable memcache
+    
+# Install the PHP intl extention
+RUN pecl install intl && \
+    docker-php-ext-enable intl
 
 # Install the PHP gd library
 RUN docker-php-ext-install gd && \
