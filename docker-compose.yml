@@ -63,7 +63,7 @@ services:
         volumes_from:
             - volumes_data
         ports:
-            - "33061:3306"
+            - "3306:3306"
         environment:
             MYSQL_DATABASE: homestead
             MYSQL_USER: homestead
