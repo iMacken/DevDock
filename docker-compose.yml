@@ -49,7 +49,8 @@ services:
         volumes_from:
             - volumes_source
         volumes:
-            - ./logs/nginx/:/var/log/nginx
+            - ./logs/nginx:/var/log/nginx
+            - ./nginx/sites:/etc/nginx/sites-available
         ports:
             - "80:80"
             - "443:443"

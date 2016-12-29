@@ -1,6 +1,6 @@
 # DevDock
 
-非常感谢[laradock](https://github.com/LaraDock/laradock)，通过这个基于Docker的开发环境包，我学到了很多，然后根据自己的需要删除了一些我认为不常用的部分、修改了部分配置以及增加了Elasticsearch容器，最终新开了自己的仓库[DevDock](https://github.com/RystLee/DevDock)。当然，推荐使用原仓库，我另起炉灶只是为了方便学习。
+非常感谢 [laradock](https://github.com/LaraDock/laradock)，通过这个基于Docker的开发环境包，我学到了很多，然后根据自己的需要删除了一些我认为不常用的部分、修改了部分配置以及增加了Elasticsearch容器，最终新开了自己的仓库[DevDock](https://github.com/RystLee/DevDock)。当然，推荐使用原仓库，我另起炉灶只是为了简化，方便学习。
 
 
 ### 支持的软件 (容器)
@@ -23,7 +23,7 @@
 
 1 - 克隆 `DevDock` 仓库:
 
-进入到你的应用的上级目录：
+在你系统的任意位置（当然为了方便起见，进入到你的应用的父级目录）：
 
 ```bash
 git clone https://github.com/RystLee/DevDock.git
@@ -38,19 +38,38 @@ git clone https://github.com/RystLee/DevDock.git
 1 - 运行容器: *(在运行`docker-compose`命令之前，确认你在 `DevDock` 目录中*
 
 **例子:** 运行 NGINX 和 MySQL:
-运行之前，先编辑网站配置文件 nginx/sites/site1.conf：
+运行之前：
+查看 docker-compose.yml 文件：
+```bash
+    volumes_source:
+        image: tianon/true
+        volumes:
+            - ../:/var/www
+```
+这里将 `DevDock` 同级目录下的所有文件映射到数据卷容器 volumes_source 中。其实可以你完全可以灵活配置，添加多个映射，例如：
+```bash
+    volumes:
+        - ../project1:/var/www
+        - ../../project2:/var/www
+```
+
+编辑网站配置文件 nginx/sites/site1.conf：
 例如：
 ```bash
 server_name laravel.dev;
 
 root /var/www/laravel/public;
 ```
+
 然后运行：
 ```bash
 docker-compose up -d  nginx mysql
 ```
+
 你可以从以下列表选择你自己的容器组合：
-`nginx`, `php-fpm`, `mysql`, `redis`, `memcached`, `elasticsearch`, `workspace`.
+`nginx`, `php-fpm`, `mysql`, `redis`, `memcached`, `elasticsearch`, `workspace`
+
+将配置文件中的各种服务的 host 改为相应的容器名称，如：DB_HOST: mysql
 
 
 **说明**: `workspace` 和 `php-fpm` 将运行在大部分实例中, 所有不用在命令中 `up`加上它们.
@@ -106,8 +125,7 @@ docker-compose stop {容器名称}
 docker-compose down
 ```
 
-
-小心这个命令,因为它也会删除你的数据容器。(如果你想保留你的数据你应该在上述命令后列出容器名称删除每个容器本身)
+>小心这个命令,因为它也会删除你的数据容器。(如果你想保留你的数据你应该在上述命令后列出容器名称删除每个容器本身)
 
 
 
@@ -271,22 +289,28 @@ PHP-CLI安装在Workspace容器，改变PHP-CLI版本你需要编辑`workspace/D
 
 假定你的自定义域名是 `laravel.dev`
 
-- 打开 `/etc/hosts` 文件 添加以下内容，映射你的localhost 地址 `192.168.99.100` 为 `laravel.dev` 域名
+- 打开 `/etc/hosts` 文件，映射 laravel.dev 到 127.0.0.1
 ```bash
-192.168.99.100    laravel.dev
+127.0.0.1    laravel.dev
 ```
 
-- 打开你的浏览器访问 `{http://laravel.dev}`
+- 打开你的浏览器访问 `http://laravel.dev`
 
 
 你可以在nginx配置文件自定义服务器名称,如下:
-
 
 ```conf
 server_name laravel.dev;
 ```
 
 <br>
+
+### 灵活配置 nignx
+在 docker-compose.yml 中，我已经将 sites 目录映射到 nginx 容器，所以当你修改 nginx 网站配置文件后，只要重启 nginx 容器即可：
+```bash
+docker-compose restart nginx
+```
+
 ### 安装全局Composer命令
 
 为启用全局Composer Install在容器构建中允许你安装composer的依赖，然后构建完成后就是可用的。
@@ -341,4 +365,5 @@ server_name laravel.dev;
 #### 看到包含 `address already in use` 的错误
 确保你想运行的服务端口(80, 3306, etc.)不是已经被其他程序使用，例如`apache`/`httpd`服务或其他安装的开发工具
 #### mysql 等容器报 Connection refused 错误
-请将相关配置文件中的 host 指定为相应的容器名称，如：host: mysql
+将配置文件中数据库服务的 host 改为相应的容器名称 mysql
+
