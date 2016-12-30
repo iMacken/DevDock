@@ -28,7 +28,7 @@ services:
                 - INSTALL_ZIP_ARCHIVE=false
                 - INSTALL_MEMCACHED=true
                 - INSTALL_OPCACHE=false
-            dockerfile: Dockerfile-56
+            dockerfile: Dockerfile-70
         volumes_from:
             - volumes_source
         expose:
