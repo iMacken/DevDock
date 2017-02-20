@@ -1,16 +1,11 @@
-FROM elasticsearch:2.3.4
+FROM elasticsearch:2.3.5
 
 MAINTAINER Macken <rystlee100@gmail.com>
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends --force-yes maven openjdk-8-jdk && \
-    rm -rf /var/lib/apt/lists/*
+ADD plugins/ik/elasticsearch-analysis-ik-1.9.5.zip /tmp/
 
-ADD https://github.com/medcl/elasticsearch-analysis-ik/archive/v1.9.4.tar.gz /tmp/elasticsearch-analysis-ik.tar.gz
+RUN unzip /tmp/elasticsearch-analysis-ik-1.9.5.zip -d /usr/share/elasticsearch/plugins/ik
 
-RUN tar -xvf /tmp/elasticsearch-analysis-ik.tar.gz -C /tmp && \
-    cd /tmp/elasticsearch-analysis-ik-1.9.4 && \
-    mvn package && \
-    unzip target/releases/elasticsearch-analysis-ik-1.9.4.zip -d /usr/share/elasticsearch/plugins/ik && \
-    cd / && \
-    rm -rf /tmp/elasticsearch-analysis-ik*
+COPY config /usr/share/elasticsearch/config
+
+EXPOSE 9200 9300
