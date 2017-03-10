@@ -1,6 +1,6 @@
 # DevDock
 
-非常感谢 [laradock](https://github.com/LaraDock/laradock)，通过这个基于Docker的开发环境包，我学到了很多，然后根据自己的需要删除了一些我认为不常用的部分、修改了部分配置以及增加了Elasticsearch容器，最终新开了自己的仓库[DevDock](https://github.com/RystLee/DevDock)。当然，推荐使用原仓库，我另起炉灶只是为了简化，方便学习。
+非常感谢 [laradock](https://github.com/LaraDock/laradock)，通过这个基于Docker的开发环境包，我学到了很多，然后根据自己的需要删除了一些我认为不常用的部分、修改了部分配置以及增加了Elasticsearch容器，最终新开了自己的仓库 [DevDock](https://github.com/RystLee/DevDock)。另起炉灶是为了简化，方便学习。
 
 
 ### 支持的软件 (容器)
@@ -13,9 +13,9 @@
 - **PHP 服务器:**
 	- NGINX
 - **PHP 编译工具:**
-	- PHP-FPM
+	- PHP-FPM (php5.6,php7.0,php7.1)
 - **工具:**
-	- Workspace (PHP7-CLI, Composer, Git, Node, Gulp, SQLite, Vim, Nano, cURL...)
+	- Workspace (PHP7-CLI, SOAP, xDebug, Composer, Git, Node, YARN, Gulp, SQLite, Vim, Nano, cURL...)
 >如果你找不到你需要的软件，构建它然后把它添加到这个列表。
 
 
@@ -41,25 +41,35 @@ git clone https://github.com/RystLee/DevDock.git
 运行之前：
 查看 docker-compose.yml 文件：
 ```bash
-    volumes_source:
+    applications:
         image: tianon/true
         volumes:
             - ../:/var/www
 ```
-这里将 `DevDock` 同级目录下的所有文件映射到数据卷容器 volumes_source 中。其实可以你完全可以灵活配置，添加多个映射，例如：
+这里将 `DevDock` 同级目录下的所有文件映射到数据卷容器 applications 中。其实可以你完全可以灵活配置，添加多个映射，例如：
 ```bash
     volumes:
         - ../project1:/var/www
         - ../../project2:/var/www
 ```
 
-编辑网站配置文件 nginx/sites/site1.conf：
+创建网站配置文件 参考 nginx/sites/default.conf （不要使用 default.conf，它会在容器中被删除）
 例如：
 ```bash
 server_name laravel.dev;
 
 root /var/www/laravel/public;
 ```
+
+创建初始数据库信息，在 docker-compose.yml 文件中：
+```bash
+    environment:
+        MYSQL_DATABASE: homestead
+        MYSQL_USER: homestead
+        MYSQL_PASSWORD: secret
+        MYSQL_ROOT_PASSWORD: root
+```
+根据需要进行修改即可。
 
 然后运行：
 ```bash
@@ -80,7 +90,7 @@ docker-compose up -d  nginx mysql
 2 - 进入 Workspace 容器, 执行像 (Artisan, Composer, Gulp, ...)等命令
 
 ```bash
-docker-compose exec workspace bash
+docker-compose exec -it workspace bash
 ```
 <br />
 增加 `--user=devdock` (例如 `docker-compose exec --user=devdock workspace bash`) 作为您的主机的用户创建的文件. (你可以从 `docker-compose.yml`修改 PUID (User id) 和 PGID (group id) 值 ).
@@ -120,14 +130,24 @@ docker-compose stop {容器名称}
 ```
 
 <br>
-### 删除所有容器
+### 删除服务容器
 ```bash
-docker-compose down
+docker-compose down {容器名称}
 ```
 
->小心这个命令,因为它也会删除你的数据容器。(如果你想保留你的数据你应该在上述命令后列出容器名称删除每个容器本身)
+该命令不会删除你的数据卷容器，如果你重新创建服务容器，服务容器默认仍会使用上次创建的数据卷容器
 
+如果不加 {容器名称} ，命令会删除所有服务容器。
 
+<br>
+### 删除数据卷容器
+使用 `docker volume ls` 列出所有数据卷容器，执行 `docker volume rm <VOLUME NAME>` 来
+
+{Tip} 
+
+1. 删除所有数据卷容器 `docker volume rm $(docker volume ls -q)`
+
+2. 删除所有不被连接的数据卷容器 `docker volume rm $(docker volume ls -qf dangling=true)`
 
 
 <br>
@@ -141,23 +161,13 @@ docker-compose down
 
 3 - 重新构建容器:
 
-```bash
-docker-compose build mysql
-```
-
-
-
-<br>
-### 建立/重建容器
-
 如果你做任何改变`dockerfile`确保你运行这个命令,可以让所有修改更改生效:
-
 
 ```bash
 docker-compose build
 ```
-选择你可以指定哪个容器重建(而不是重建所有的容器):
 
+选择你可以指定哪个容器重建(而不是重建所有的容器):
 
 ```bash
 docker-compose build {container-name}
@@ -254,15 +264,15 @@ PHP-CLI拓展应该安装到`workspace/Dockerfile`.
 
 <br>
 ### 修改PHP-FPM版本
-默认运行**PHP-FPM 7.0**版本.
+默认运行**PHP-FPM 7.1**版本.
 
-#### 切换版本 PHP `7.0` 到 PHP `5.6`
+#### 切换版本 PHP `7.1` 或 PHP `5.6`
 
 1 - 打开 `docker-compose.yml`。
 
-2 - 在PHP容器的 `Dockerfile-70`文件。
+2 - 在PHP容器的 `Dockerfile-71`文件。
 
-3 - 修改版本号, 用`Dockerfile-56`替换 `Dockerfile-70`
+3 - 修改版本号, 用`Dockerfile-56` 或 `Dockerfile-70` 替换 `Dockerfile-71`
 
 4 - 最后重建PHP容器
 
@@ -360,6 +370,41 @@ docker-compose restart nginx
 
 
 - 重建容器 `docker-compose build workspace`
+
+
+### 安装 xDebug
+
+1 - 首先在Workspace和PHP-FPM容器安装 `xDebug`:
+<br>
+a) 打开 `docker-compose.yml` 文件
+<br>
+b) 在Workspace容器中找到 `INSTALL_XDEBUG` 选项
+<br>
+c) 改为 `true`
+<br>
+d) 在PHP-FPM容器中找到 `INSTALL_XDEBUG ` 选项<br>
+e) 改为 `true`
+
+例如:
+
+```yml
+    workspace:
+        build:
+            context: ./workspace
+            args:
+                - INSTALL_XDEBUG=true
+    ...
+    php-fpm:
+        build:
+            context: ./php-fpm
+            args:
+                - INSTALL_XDEBUG=true
+    ...
+```
+
+2 - 重建容器 `docker-compose build workspace php-fpm`
+
+
 
 ### DEBUG
 #### 看到包含 `address already in use` 的错误

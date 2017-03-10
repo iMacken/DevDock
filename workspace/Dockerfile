@@ -22,23 +22,22 @@ RUN apt-get install -y software-properties-common && \
 # Install "PHP Extentions", "libraries", "Software's"
 RUN apt-get update && \
     apt-get install -y --force-yes \
-        php7.0-cli \
-        php7.0-common \
-        php7.0-curl \
-        php7.0-json \
-        php7.0-xml \
-        php7.0-mbstring \
-        php7.0-mcrypt \
-        php7.0-mysql \
-        php7.0-pgsql \
-        php7.0-sqlite \
-        php7.0-sqlite3 \
-        php7.0-zip \
-        php7.0-memcached \
-        php7.0-gd \
-        php7.0-intl \
+        php7.1-cli \
+        php7.1-common \
+        php7.1-curl \
+        php7.1-json \
+        php7.1-xml \
+        php7.1-mbstring \
+        php7.1-mcrypt \
+        php7.1-mysql \
+        php7.1-pgsql \
+        php7.1-sqlite \
+        php7.1-sqlite3 \
+        php7.1-zip \
+        php7.1-memcached \
+        php7.1-gd \
+        php7.1-dev \
         pkg-config \
-        php-dev \
         libcurl4-openssl-dev \
         libedit-dev \
         libssl-dev \
@@ -53,7 +52,9 @@ RUN apt-get update && \
         postgresql-client \
     && apt-get clean
 
+#####################################
 # Install composer
+#####################################
 RUN curl -s http://getcomposer.org/installer | php && \
     mv composer.phar /usr/local/bin/composer
 
@@ -67,18 +68,31 @@ RUN curl -s http://getcomposer.org/installer | php && \
 #   - INSTALL_NODE=             false
 
 
+#####################################
 # Non-Root User:
+#####################################
 # Add a non-root user to prevent files being created with root permissions on host machine.
 ARG PUID=1000
 ARG PGID=1000
 RUN groupadd -g $PGID devdock && \
     useradd -u $PUID -g devdock -m devdock
 
+
+#####################################
+# Set Timezone
+#####################################
+ARG TZ=UTC
+ENV TZ ${TZ}
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+
+#####################################
 # Composer:
-# Add the composer.json 
+#####################################
+# Add the composer.json
 COPY ./composer.json /home/devdock/.composer/composer.json
 
-# Make sure that ~/.composer belongs to devdock    
+# Make sure that ~/.composer belongs to devdock
 RUN chown -R devdock:devdock /home/devdock/.composer
 USER devdock
 
@@ -91,7 +105,10 @@ RUN if [ ${COMPOSER_GLOBAL_INSTALL} = true ]; then \
 ;fi
 
 
+#####################################
 # Node / NVM:
+#####################################
+USER devdock
 # Check if NVM needs to be installed
 ARG NODE_VERSION=stable
 ENV NODE_VERSION ${NODE_VERSION}
@@ -115,6 +132,53 @@ RUN if [ ${INSTALL_NODE} = true ]; then \
     echo 'export NVM_DIR="$HOME/.nvm"' >> ~/.bashrc && \
     echo '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm' >> ~/.bashrc \
 ;fi
+
+#####################################
+# YARN:
+#####################################
+USER devdock
+
+ARG INSTALL_YARN=false
+ENV INSTALL_YARN ${INSTALL_YARN}
+ARG YARN_VERSION=latest
+ENV YARN_VERSION ${YARN_VERSION}
+
+RUN if [ ${INSTALL_YARN} = true ]; then \
+    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && \
+    if [ ${YARN_VERSION} = "latest" ]; then \
+        curl -o- -L https://yarnpkg.com/install.sh | bash; \
+    else \
+        curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version ${YARN_VERSION}; \
+    fi && \
+    echo "" >> ~/.bashrc && \
+    echo 'export PATH="$HOME/.yarn/bin:$PATH"' >> ~/.bashrc \
+;fi
+
+# Add YARN binaries to root's .bashrc
+USER root
+
+RUN if [ ${INSTALL_YARN} = true ]; then \
+    echo "" >> ~/.bashrc && \
+    echo 'export YARN_DIR="/home/laradock/.yarn"' >> ~/.bashrc && \
+    echo 'export PATH="$YARN_DIR/bin:$PATH"' >> ~/.bashrc \
+;fi
+
+
+#####################################
+# xDebug:
+#####################################
+USER root
+ARG INSTALL_XDEBUG=false
+RUN if [ ${INSTALL_XDEBUG} = true ]; then \
+    # Load the xdebug extension only with phpunit commands
+    apt-get update && \
+    apt-get install -y --force-yes php7.0-xdebug && \
+    sed -i 's/^/;/g' /etc/php/7.0/cli/conf.d/20-xdebug.ini && \
+    echo "alias phpunit='php -dzend_extension=xdebug.so /var/www/vendor/bin/phpunit'" >> ~/.bashrc \
+;fi
+# ADD for REMOTE debugging
+COPY ./xdebug.ini /etc/php/7.0/cli/conf.d/xdebug.ini
+
 
 
 

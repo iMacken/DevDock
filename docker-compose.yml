@@ -2,18 +2,30 @@ version: '2'
 
 services:
 
+### Application Code Container ######################
+
+    applications:
+        image: tianon/true
+        volumes:
+            - ../:/var/www
+
 ### Workspace Utilities Container ###########################
 
     workspace:
         build:
             context: ./workspace
             args:
+                - INSTALL_XDEBUG=true
                 - INSTALL_NODE=true
+                - INSTALL_YARN=true
                 - COMPOSER_GLOBAL_INSTALL=true
                 - PUID=1000
                 - PGID=1000
+                - NODE_VERSION=stable
+                - YARN_VERSION=latest
+                - TZ=PRC
         volumes_from:
-            - volumes_source
+            - applications
         extra_hosts:
             # IMPORTANT: Replace with your Docker Host IP (will be appended to /etc/hosts)
             - "test.com:10.1.5.3"
@@ -25,12 +37,15 @@ services:
         build:
             context: ./php-fpm
             args:
-                - INSTALL_ZIP_ARCHIVE=false
+                - INSTALL_XDEBUG=true
+                - INSTALL_SOAP=true
+                - INSTALL_ZIP_ARCHIVE=true
                 - INSTALL_MEMCACHED=true
-                - INSTALL_OPCACHE=false
-            dockerfile: Dockerfile-70
+                - INSTALL_PHPREDIS=true
+                - INSTALL_OPCACHE=true
+            dockerfile: Dockerfile-71
         volumes_from:
-            - volumes_source
+            - applications
         expose:
             - "9000"
         links:
@@ -47,7 +62,7 @@ services:
             args:
                 - PHP_UPSTREAM=php-fpm
         volumes_from:
-            - volumes_source
+            - applications
         volumes:
             - ./logs/nginx:/var/log/nginx
             - ./nginx/sites:/etc/nginx/sites-available
@@ -60,23 +75,25 @@ services:
 ### MySQL Container #########################################
 
     mysql:
-        build: ./mysql
-        volumes_from:
-            - volumes_data
-        ports:
-            - "3306:3306"
+        build:
+            context: ./mysql
         environment:
-            MYSQL_DATABASE: homestead
+            MYSQL_DATABASE: macken
             MYSQL_USER: homestead
             MYSQL_PASSWORD: secret
             MYSQL_ROOT_PASSWORD: root
+        volumes:
+            - mysql:/var/lib/mysql
+        ports:
+            - "3306:3306"
+
 
 ### Redis Container #########################################
 
     redis:
         build: ./redis
-        volumes_from:
-            - volumes_data
+        volumes:
+            - redis:/data
         ports:
             - "6379:6379"
 
@@ -84,8 +101,8 @@ services:
 
     memcached:
         build: ./memcached
-        volumes_from:
-            - volumes_data
+        volumes:
+            - memcached:/var/lib/memcached
         ports:
             - "11211:11211"
         links:
@@ -95,8 +112,9 @@ services:
 
     elasticsearch:
         build: ./elasticsearch
-        volumes_from:
-            - volumes_data
+        volumes:
+            - elasticsearch-data:/usr/share/elasticsearch/data
+            - elasticsearch-plugins:/usr/share/elasticsearch/data
         ports:
             - "9200:9200"
             - "9300:9300"
@@ -110,30 +128,29 @@ services:
             MYSQL_USER: homestead
             MYSQL_PASSWORD: secret
             MYSQL_ROOT_PASSWORD: root
-        volumes_from:
-            - volumes_data
         ports:
             - "8080:80"
         links:
             - "mysql:db"
 
-### Application Code Container ######################
 
-    volumes_source:
-        image: tianon/true
-        volumes:
-            - ../:/var/www
 
-### Databases Data Container ################################
 
-    volumes_data:
-        image: tianon/true
-        volumes:
-            - ./data/mysql:/var/lib/mysql
-            - ./data/memcached:/var/lib/memcached
-            - ./data/redis:/data
-            - ./data/sessions:/sessions
-            - ./data/elasticsearch/data:/usr/share/elasticsearch/data
+### Volumes Setup ###########################################
 
-### Add more Containers below ###############################
+volumes:
+    mysql:
+        driver: "local"
+    memcached:
+        driver: "local"
+    redis:
+        driver: "local"
+    phpmyadmin:
+        driver: "local"
+    elasticsearch-data:
+        driver: "local"
+    elasticsearch-plugins:
+        driver: "local"
+    sessions:    ## nothing is connected to this (- ./data/sessions:/sessions)
+        driver: "local"
 
