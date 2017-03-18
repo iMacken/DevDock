@@ -67,7 +67,7 @@ services:
             - ./logs/nginx:/var/log/nginx
             - ./nginx/sites:/etc/nginx/sites-available
         ports:
-            - "80:80"
+            - "8000:80"
             - "443:443"
         links:
             - php-fpm
