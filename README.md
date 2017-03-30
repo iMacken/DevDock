@@ -409,6 +409,6 @@ e) 改为 `true`
 ### DEBUG
 #### 看到包含 `address already in use` 的错误
 确保你想运行的服务端口(80, 3306, etc.)不是已经被其他程序使用，例如`apache`/`httpd`服务或其他安装的开发工具
-#### mysql 等容器报 Connection refused 错误
-将配置文件中数据库服务的 host 改为相应的容器名称 mysql
+#### 容器报类似 Connection refused 的错误
+将配置文件中服务的 host 改为相应的容器名称，如 mysql
 

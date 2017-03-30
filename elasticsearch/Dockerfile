@@ -1,11 +1,10 @@
-FROM elasticsearch:2.3.5
+FROM elasticsearch:5.2.2
 
 MAINTAINER Macken <rystlee100@gmail.com>
 
-ADD plugins/ik/elasticsearch-analysis-ik-1.9.5.zip /tmp/
+ADD config /usr/share/elasticsearch/config
 
-RUN unzip /tmp/elasticsearch-analysis-ik-1.9.5.zip -d /usr/share/elasticsearch/plugins/ik
-
-COPY config /usr/share/elasticsearch/config
+ADD plugins /usr/share/elasticsearch/plugins
 
 EXPOSE 9200 9300
+
