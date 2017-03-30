@@ -225,7 +225,7 @@ PHP 的扩展 FPM 和 CLI 分别安装在 php-fpm 和 workspace 镜像当中，�
     1. 打开 docker-compose.yml。
     2. 在PHP容器的 Dockerfile-71 文件。
     3. 修改版本号, 用 Dockerfile-56 或 Dockerfile-70 替换 Dockerfile-71
-    4. 最后重建PHP容器 `docker-compose build php`
+    4. 最后重建PHP容器 `docker-compose build php-fpm`
 
 > 更多关于 PHP 基础镜像, 请访问 [PHP Docker官方镜像](https://hub.docker.com/_/php/).
 
@@ -257,12 +257,17 @@ server_name laravel.dev;
 ```
 
 
-### 灵活配置 nignx
+### 灵活配置 Nignx
 
 在 docker-compose.yml 中，我已经将 sites 目录映射到 nginx 容器，所以当你修改 nginx 网站配置文件后，只要重启 nginx 容器即可：
 
 `docker-compose restart nginx`
 
+### 使用 Elasticsearch
+
+进入到 elasticsearch 目录下，config 和 plugins 分别放置了配置文件和插件，可根据需要修改和添加，完成之后重建镜像
+
+`docker-compose build elasticsearch`
 
 ### 安装全局 Composer 命令
 
@@ -297,7 +302,7 @@ server_name laravel.dev;
 
 
 
-## DEBUG
+## Debug
 
 * 看到包含 address already in use 的错误：
 
