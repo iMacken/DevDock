@@ -257,7 +257,7 @@ server_name laravel.dev;
 ```
 
 
-### 灵活配置 nignx
+### 灵活配置 Nignx
 
 在 docker-compose.yml 中，我已经将 sites 目录映射到 nginx 容器，所以当你修改 nginx 网站配置文件后，只要重启 nginx 容器即可：
 
@@ -297,7 +297,7 @@ server_name laravel.dev;
 
 
 
-## DEBUG
+## Debug
 
 * 看到包含 address already in use 的错误：
 
