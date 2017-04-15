@@ -23,7 +23,11 @@
 
 在你系统的任意位置（建议在你的工作目录）：
 
-`git clone https://github.com/RystLee/DevDock.git`
+```bash
+git clone https://github.com/RystLee/DevDock.git
+cd DevDock
+cp .env.example .env
+```
 
 ## 启动
 进入到 DevDock 目录中

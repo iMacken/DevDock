@@ -89,6 +89,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 #####################################
 # Composer:
 #####################################
+
 # Add the composer.json
 COPY ./composer.json /home/devdock/.composer/composer.json
 
@@ -97,12 +98,13 @@ RUN chown -R devdock:devdock /home/devdock/.composer
 USER devdock
 
 # Check if global install need to be ran
-ARG COMPOSER_GLOBAL_INSTALL=true
+ARG COMPOSER_GLOBAL_INSTALL=false
 ENV COMPOSER_GLOBAL_INSTALL ${COMPOSER_GLOBAL_INSTALL}
 RUN if [ ${COMPOSER_GLOBAL_INSTALL} = true ]; then \
     # run the install
     composer global install \
 ;fi
+
 
 
 #####################################
@@ -133,9 +135,11 @@ RUN if [ ${INSTALL_NODE} = true ]; then \
     echo '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm' >> ~/.bashrc \
 ;fi
 
+
 #####################################
 # YARN:
 #####################################
+
 USER devdock
 
 ARG INSTALL_YARN=false
@@ -159,7 +163,7 @@ USER root
 
 RUN if [ ${INSTALL_YARN} = true ]; then \
     echo "" >> ~/.bashrc && \
-    echo 'export YARN_DIR="/home/laradock/.yarn"' >> ~/.bashrc && \
+    echo 'export YARN_DIR="/home/devdock/.yarn"' >> ~/.bashrc && \
     echo 'export PATH="$YARN_DIR/bin:$PATH"' >> ~/.bashrc \
 ;fi
 
@@ -178,9 +182,6 @@ RUN if [ ${INSTALL_XDEBUG} = true ]; then \
 ;fi
 # ADD for REMOTE debugging
 COPY ./xdebug.ini /etc/php/7.1/cli/conf.d/xdebug.ini
-
-
-
 
 #--------------------------------------------------------------------------
 # Final Touch
