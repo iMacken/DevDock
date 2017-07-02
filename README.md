@@ -85,7 +85,7 @@ nginx, php-fpm, mysql, redis, memcached, elasticsearch, workspace
 
 进入 Workspace 容器, 执行像 (Artisan, Composer, Gulp, ...)等命令
 
-`docker-compose exec -it workspace bash`
+`docker-compose exec -it -u devdock workspace bash`
 
 增加 --user=devdock (例如 docker-compose exec --user=devdock workspace bash) 作为您的主机的用户创建的文件. (你可以从 docker-compose.yml 修改 PUID (User id) 和 PGID (group id) 值 )。
 
