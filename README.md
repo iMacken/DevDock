@@ -1,6 +1,8 @@
 # DevDock
+
 非常感谢 [laradock](https://github.com/LaraDock/laradock)， [DevDock](https://github.com/RystLee/DevDock) 是简化定制之后的产物，方便学习使用。
-构建可能很耗费时间，不需要定制的话，可以使用我build好的images :  https://hub.docker.com/search/?isAutomated=0&isOfficial=0&page=1&pullCount=0&q=rystlee&starCount=0
+
+>构建可能很耗费时间，不需要定制的话，可以使用我build好的images :  https://hub.docker.com/search/?isAutomated=0&isOfficial=0&page=1&pullCount=0&q=rystlee&starCount=0
 
 ## 支持的软件 (镜像)
 
