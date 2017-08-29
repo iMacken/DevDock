@@ -144,7 +144,7 @@ COPY ./opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 ADD ./site.ini /usr/local/etc/php/conf.d
 ADD ./site.pool.conf /usr/local/etc/php-fpm.d/
 
-RUN rm -r /var/lib/apt/lists/*
+RUN rm -rf /var/lib/apt/lists/*
 
 RUN usermod -u 1000 www-data
 
