@@ -122,11 +122,11 @@ nginx, php-fpm, mysql, redis, memcached, elasticsearch, workspace
 
 * 列出所有数据卷容器
 
-`docker volume rm <VOLUME NAME>`
+ `docker volume ls` 
 
 * 删除数据卷容器
 
- `docker volume ls` 
+ `docker volume rm <VOLUME NAME>`
 
 * 删除所有数据卷容器
 
