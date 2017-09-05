@@ -29,6 +29,9 @@ services:
             dockerfile: "Dockerfile-${PHP_VERSION}"
         volumes_from:
             - applications
+        volumes:
+            - ${WORKSPACE_XDEBUG_CONF}:/etc/php/7.1/cli/conf.d/xdebug.ini
+            - ${WORKSPACE_CRONTAB}:/etc/cron.d
         extra_hosts:
             - "dockerhost:${DOCKER_HOST_IP}"
         tty: true
@@ -48,6 +51,10 @@ services:
             dockerfile: Dockerfile-${PHP_VERSION}
         volumes_from:
             - applications
+        volumes:
+            - ${PHP_FPM_XDEBUG_CONFIG}:/etc/php/7.1/cli/conf.d/xdebug.ini
+            - ${PHP_FPM_INI_CONF}:/usr/local/etc/php/conf.d/site.ini
+            - ${PHP_FPM_POOL_CONF}:/usr/local/etc/php-fpm.d/site.pool.ini
         expose:
             - "9000"
         links:
@@ -69,7 +76,7 @@ services:
         volumes:
             - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
             - ${NGINX_SITES_PATH}:/etc/nginx/sites-available
-            - ${NGINX_CONF_FILE}:/etc/nginx/nginx.conf
+            - ${NGINX_CONF}:/etc/nginx/nginx.conf
         ports:
             - "${NGINX_HOST_HTTP_PORT}:80"
             - "${NGINX_HOST_HTTPS_PORT}:443"
@@ -88,7 +95,7 @@ services:
             - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
         volumes:
             - mysql:/var/lib/mysql
-            - ${MYSQL_CONF_FILE}:/etc/mysql/conf.d/my.cnf
+            - ${MYSQL_CONF}:/etc/mysql/conf.d/my.cnf
         ports:
             - "${MYSQL_PORT}:3306"
 
