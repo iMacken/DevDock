@@ -6,15 +6,19 @@
 
 ## 支持的软件 (镜像)
 
-- **数据库引擎:**
+- **数据库引擎**
     - Mysql
+- **Mysql 管理工具**
+    - phpmyadmin
 - **缓存引擎:**
     - Redis
     - Memcached
-- **PHP 服务器:**
+- **搜索引擎**
+    - elasticsearch
+- **PHP 服务器**
     - Nginx
-- **PHP 编译工具:**
-    - php-fpm (php5.6,php7.0,php7.1)
+- **PHP 编译工具**
+    - php-fpm (php7.1)
 - **工具:**
     - Workspace (PHP7-CLI, SOAP, xDebug, Composer, Git, Node, YARN, Gulp, SQLite, Vim, Nano, cURL...)
 >如果你找不到你需要的软件，构建它然后把它添加到这个列表。
@@ -32,6 +36,8 @@ cd DevDock
 cp .env.example .env
 ```
 
+> 查看 .env 文件你会发现很多环境配置项，在这里可以自行配置开发环境。
+
 ## 启动
 进入到 DevDock 目录中
 
@@ -43,10 +49,10 @@ cp .env.example .env
     applications:
         image: tianon/true
         volumes:
-            - ../:/var/www
+            - ${APPLICATION}:/var/www
 ```
 
-这里将 DevDock 同级目录下的所有文件映射到数据卷容器 applications 中。其实可以你完全可以灵活配置，添加多个映射，例如：
+DevDock 默认将同级目录下的所有文件映射到数据卷容器 applications 中。其实可以你完全可以灵活配置，添加多个映射，例如：
 
 ```yml
     volumes:
@@ -54,7 +60,7 @@ cp .env.example .env
         - ../../project2:/var/www
 ```
 
-创建网站配置文件 参考 nginx/sites/default.conf （不要使用 default.conf，它会在容器中被删除）
+创建网站配置文件 参考 nginx/sites/default.conf （**不要使用 default.conf，它会在容器中被删除**）
 
 ```conf
 server_name laravel.dev;
@@ -94,6 +100,12 @@ nginx, php-fpm, mysql, redis, memcached, elasticsearch, workspace
 
 
 ## 使用
+
+### 灵活配置开发环境
+
+在 docker-compose.yml 中，引用了很多环境变量，可自行在 .env 进行配置。典型的，我已经将 nginx 目录下 的 sites 目录映射到 nginx 容器，所以当你修改 nginx 网站配置文件后，只要重启 nginx 容器即可：
+
+`docker-compose restart nginx`
 
 ### 常用命令
 
@@ -264,12 +276,6 @@ server_name laravel.dev;
 ```
 
 
-### 灵活配置 Nignx
-
-在 docker-compose.yml 中，我已经将 sites 目录映射到 nginx 容器，所以当你修改 nginx 网站配置文件后，只要重启 nginx 容器即可：
-
-`docker-compose restart nginx`
-
 ### 使用 Elasticsearch
 
 进入到 elasticsearch 目录下，config 和 plugins 分别放置了配置文件和插件，可根据需要修改和添加，完成之后重建镜像
@@ -306,7 +312,6 @@ server_name laravel.dev;
 - 在 php-fpm 和 workspace 项中分别找到 INSTALL_NODE 选项设为 true
 
 - 重建容器 `docker-compose build workspace php-fpm`
-
 
 
 ## Debug
