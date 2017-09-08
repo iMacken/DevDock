@@ -16,6 +16,8 @@
     - elasticsearch
 - **PHP 服务器**
     - Nginx
+- **PHP 进程管理**
+    - php-worker
 - **PHP 编译工具**
     - php-fpm (php7.1)
 - **工具:**
@@ -84,7 +86,7 @@ root /var/www/laravel/public;
 
 你可以从以下列表选择你自己的容器组合：
 
-nginx, php-fpm, mysql, redis, memcached, elasticsearch, workspace
+nginx, php-fpm, php-worker, mysql, redis, memcached, elasticsearch, workspace
 
 将配置文件中的各种服务的 host 改为相应的**容器名称**，如：DB_HOST: mysql
 
