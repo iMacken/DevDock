@@ -47,12 +47,11 @@ services:
                 - INSTALL_ZIP_ARCHIVE=${PHP_FPM_INSTALL_ZIP_ARCHIVE}
                 - INSTALL_PHPREDIS=${PHP_FPM_INSTALL_PHPREDIS}
                 - INSTALL_MEMCACHED=${PHP_FPM_INSTALL_MEMCACHED}
-                - INSTALL_OPCACHE=${PHP_FPM_INSTALL_OPCACHE}
             dockerfile: Dockerfile-${PHP_VERSION}
         volumes_from:
             - applications
         volumes:
-            - ${PHP_FPM_XDEBUG_CONFIG}:/etc/php/7.1/cli/conf.d/xdebug.ini
+            - ${PHP_FPM_XDEBUG_CONF}:/etc/php/7.1/cli/conf.d/xdebug.ini
             - ${PHP_FPM_INI_CONF}:/usr/local/etc/php/conf.d/site.ini
             - ${PHP_FPM_POOL_CONF}:/usr/local/etc/php-fpm.d/site.pool.ini
         expose:
@@ -63,6 +62,21 @@ services:
             - "dockerhost:${DOCKER_HOST_IP}"
         environment:
             - PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
+
+### PHP Worker Container #####################################
+
+    php-worker:
+      build:
+        context: ./php-worker
+        dockerfile: "Dockerfile-${PHP_VERSION}"
+      volumes_from:
+        - applications
+      volumes:
+            - ${PHP_WORKER_SUPERVISORD_CONF}:/etc/supervisord.conf
+      depends_on:
+        - workspace
+      extra_hosts:
+        - "dockerhost:${DOCKER_HOST_IP}"
 
 ### Nginx Server Container ##################################
 

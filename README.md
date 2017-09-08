@@ -234,27 +234,10 @@ composer require predis/predis:^1.0
 
 PHP 的扩展 FPM 和 CLI 分别安装在 php-fpm 和 workspace 镜像当中，如果需要定制，请分别到 php-fpm/Dockerfile-xx 和 workspace/Dockerfile 文件中编辑。
 
-* 选择 php-fpm 版本
+默认运行 php-fpm 7.1 版本，如需其他版本可以参考 laradock 自行添加。
 
-默认运行 **php-fpm 7.1** 版本
+supervisor 进程管理工具安装在 php-worker 容器中，修改配置重启容器即可生效。
 
-切换版本 PHP 7.0 或 PHP 5.6：
-
-    1. 打开 docker-compose.yml。
-    2. 在PHP容器的 Dockerfile-71 文件。
-    3. 修改版本号, 用 Dockerfile-56 或 Dockerfile-70 替换 Dockerfile-71
-    4. 最后重建PHP容器 `docker-compose build php-fpm`
-
-> 更多关于 PHP 基础镜像, 请访问 [PHP Docker官方镜像](https://hub.docker.com/_/php/).
-
-
-* 修改 php-cli 版本
-
-默认运行**php-cli 7.1**版本
-
-> 说明: php-cli 只用于执行 Artisan 和 Composer 等命令，不服务于你的应用代码，这是 php-fpm 的工作，所以编辑php-cli 的版本不是很重要。
-
-php-cli 安装在 workspace 镜像，改变 php-cli 版本你需要编辑 workspace/Dockerfile.
 
 ### 使用自定义域名
 
