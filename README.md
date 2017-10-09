@@ -105,7 +105,7 @@ nginx, php-fpm, php-worker, mysql, redis, memcached, elasticsearch, workspace
 
 ### 提升 Mac 系统上的项目访问速度
 
-**在 Mac 系统上，Docker 运行在一个特别的虚拟机上，当容器访问挂载的数据卷中的文件时会出现极其缓慢的现象，这会浪费了我们很多时间，现在解决方案来了！我们开始使用 Docker Sync ，只需要将 docker-compose up -d  替换成 ./sync.sh up ，docker-compose down 替换成 ./sync.sh down 即可，想要了解更多关于 Docker Sync 的细节，请访问 ![Docker Sync](https://github.com/EugenMayer/docker-sync)** 
+在 Mac 系统上，Docker 运行在一个特别的虚拟机上，当容器访问挂载的数据卷中的文件时会出现极其缓慢的现象，这会浪费了我们很多时间，现在解决方案来了！我们开始使用 Docker Sync ，只需要将 `docker-compose up -d`  替换成 `./sync.sh up` ，`docker-compose down` 替换成 `./sync.sh down` 即可，想要了解更多关于 Docker Sync 的细节，请访问 ![Docker Sync](https://github.com/EugenMayer/docker-sync)
 
 ### 灵活配置开发环境
 
