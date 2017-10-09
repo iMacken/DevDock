@@ -2,3 +2,4 @@
 .env
 /logs
 /data
+/.docker-sync/
