@@ -21,10 +21,12 @@ RUN apt-get install -y software-properties-common && \
 
 # Install "PHP Extentions", "libraries", "Software's"
 RUN apt-get update && \
-    apt-get install -y \
+    apt-get install -y --allow-downgrades --allow-remove-essential \
+        --allow-change-held-packages \
         php7.1-cli \
         php7.1-common \
         php7.1-curl \
+        php7.1-intl \
         php7.1-json \
         php7.1-xml \
         php7.1-mbstring \
@@ -34,6 +36,7 @@ RUN apt-get update && \
         php7.1-sqlite \
         php7.1-sqlite3 \
         php7.1-zip \
+        php7.1-bcmath \
         php7.1-memcached \
         php7.1-gd \
         php7.1-dev \
@@ -52,12 +55,13 @@ RUN apt-get update && \
         postgresql-client \
     && apt-get clean
 
-#####################################
-# Install composer
-#####################################
-RUN curl -sS https://getcomposer.org/installer | php && \
+# Install composer and add its bin to the PATH.
+RUN curl -s http://getcomposer.org/installer | php && \
     echo "export PATH=${PATH}:/var/www/vendor/bin" >> ~/.bashrc && \
     mv composer.phar /usr/local/bin/composer
+
+# Source the bash
+RUN . ~/.bashrc
 
 #--------------------------------------------------------------------------
 # Optional Software's Installation
@@ -78,9 +82,11 @@ ARG PGID=1000
 
 ENV PUID ${PUID}
 ENV PGID ${PGID}
-RUN groupadd -g $PGID devdock && \
-    useradd -u $PUID -g devdock -m devdock && \
-    apt-get update -yqq
+
+RUN groupadd -g ${PGID} devdock && \
+    useradd -u ${PUID} -g devdock -m devdock && \
+    apt-get update -yqq && \
+    apt-get install -y python2.7
 
 #####################################
 # SOAP:
@@ -193,6 +199,27 @@ RUN if [ ${INSTALL_YARN} = true ]; then \
 ;fi
 
 #####################################
+# User Aliases
+#####################################
+
+USER devdock
+COPY ./aliases.sh /home/devdock/aliases.sh
+RUN echo "" >> ~/.bashrc && \
+    echo "# Load Custom Aliases" >> ~/.bashrc && \
+    echo "source /home/devdock/aliases.sh" >> ~/.bashrc && \
+    echo "" >> ~/.bashrc && \
+    sed -i 's/\r//' /home/devdock/aliases.sh && \
+    sed -i 's/^#! \/bin\/sh/#! \/bin\/bash/' /home/devdock/aliases.sh
+
+USER root
+RUN echo "" >> ~/.bashrc && \
+    echo "# Load Custom Aliases" >> ~/.bashrc && \
+    echo "source /home/devdock/aliases.sh" >> ~/.bashrc && \
+    echo "" >> ~/.bashrc && \
+    sed -i 's/\r//' /home/devdock/aliases.sh && \
+    sed -i 's/^#! \/bin\/sh/#! \/bin\/bash/' /home/devdock/aliases.sh
+
+#####################################
 # xDebug:
 #####################################
 
@@ -224,6 +251,21 @@ RUN if [ ${INSTALL_WORKSPACE_SSH} = true ]; then \
         && chmod 644 /root/.ssh/authorized_keys /root/.ssh/id_rsa.pub \
     && chmod 400 /root/.ssh/id_rsa \
 ;fi
+
+#####################################
+# MongoDB:
+#####################################
+
+# Check if Mongo needs to be installed
+ARG INSTALL_MONGO=false
+ENV INSTALL_MONGO ${INSTALL_MONGO}
+RUN if [ ${INSTALL_MONGO} = true ]; then \
+    # Install the mongodb extension
+    pecl -q install mongodb && \
+    echo "extension=mongodb.so" >> /etc/php/7.1/mods-available/mongodb.ini && \
+    ln -s /etc/php/7.1/mods-available/mongodb.ini /etc/php/7.1/cli/conf.d/30-mongodb.ini \
+;fi
+
 
 #--------------------------------------------------------------------------
 # Final Touch
