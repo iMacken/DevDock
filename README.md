@@ -7,6 +7,7 @@
 
 - **数据库引擎**
     - Mysql
+    - Mongo
 - **Mysql 管理工具**
     - phpmyadmin
 - **缓存引擎:**
