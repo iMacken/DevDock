@@ -313,3 +313,5 @@ server_name laravel.dev;
 * 容器报类似 Connection refused 的错误：
 
 将配置文件中服务的 host 改为相应的容器名称，如 mysql
+
+* 如遇到 Elasticsearch 等内存消耗大的容器莫名其妙挂掉，而且查看日志无果，请打开 Docker App > Preferences > Advanced 提高系统给予 docker 的内存大小
