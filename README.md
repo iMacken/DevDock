@@ -315,3 +315,5 @@ server_name laravel.dev;
 将配置文件中服务的 host 改为相应的容器名称，如 mysql
 
 * 如遇到 Elasticsearch 等内存消耗大的容器莫名其妙挂掉，而且查看日志无果，请打开 Docker App > Preferences > Advanced 提高系统给予 docker 的内存大小
+
+* 如果 Elasticsearch 启动报错，可能是之前未被清理掉的 volumes 中已存在的 node 导致的。所以，每次销毁容器时都需要清理掉响应的 volume，可以执行命令 `docker volume rm $(docker volume ls -qf dangling=true) ` 来进行清理。
