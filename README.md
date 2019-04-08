@@ -100,10 +100,6 @@ nginx, php-fpm, php-worker, mysql, redis, memcached, elasticsearch, workspace
 
 ## 使用
 
-### 提升 Mac 系统上的项目访问速度
-
-在 Mac 系统上，Docker 运行在一个特别的虚拟机上，当容器访问挂载的数据卷中的文件时会出现极其缓慢的现象，这会浪费了我们很多时间，现在解决方案来了！我们开始使用 Docker Sync ，只需要先执行 `./sync.sh install`，然后将常用命令 `docker-compose up -d` 替换成 `./sync.sh up` ，`docker-compose down` 替换成 `./sync.sh down` 即可，想要了解更多关于 Docker Sync 的细节，请访问 ![Docker Sync](https://github.com/EugenMayer/docker-sync)
-
 ### 灵活配置开发环境
 
 在 docker-compose.yml 中，引用了很多环境变量，可自行在 .env 进行配置。典型的，我已经将 nginx 目录下 的 sites 目录映射到 nginx 容器，所以当你修改 nginx 网站配置文件后，只要重启 nginx 容器即可：
