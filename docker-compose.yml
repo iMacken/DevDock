@@ -1,25 +1,51 @@
-version: '2'
+version: "3"
+
+networks:
+    frontend:
+        driver: ${NETWORKS_DRIVER}
+    backend:
+        driver: ${NETWORKS_DRIVER}
+
+volumes:
+    mysql:
+        driver: ${VOLUMES_DRIVER}
+    memcached:
+        driver: ${VOLUMES_DRIVER}
+    redis:
+        driver: ${VOLUMES_DRIVER}
+    mongo:
+        driver: ${VOLUMES_DRIVER}
+    phpmyadmin:
+        driver: ${VOLUMES_DRIVER}
+    elasticsearch:
+        driver: ${VOLUMES_DRIVER}
+    adminer:
+        driver: ${VOLUMES_DRIVER}
 
 services:
-
-### Application Code Container ######################
-
-    applications:
-        image: tianon/true
+    ### Docker-in-Docker ################################################
+    docker-in-docker:
+        image: docker:dind
+        privileged: true
         volumes:
-            - ${APPLICATION}:/var/www
+            - ${APP_CODE_LOCAL_PATH}:${APP_CODE_CONTAINER_PATH}
+        expose:
+            - 2375
+        networks:
+            - backend
 
-### Workspace Utilities Container ###########################
-
+    ### Workspace Utilities Container ###########################
     workspace:
         build:
             context: ./workspace
             args:
+                - PHP_VERSION=${PHP_VERSION}
                 - INSTALL_XDEBUG=${WORKSPACE_INSTALL_XDEBUG}
                 - INSTALL_NODE=${WORKSPACE_INSTALL_NODE}
                 - INSTALL_SOAP=${WORKSPACE_INSTALL_SOAP}
                 - INSTALL_YARN=${WORKSPACE_INSTALL_YARN}
                 - INSTALL_MONGO=${WORKSPACE_INSTALL_MONGO}
+                - INSTALL_SWOOLE=${WORKSPACE_INSTALL_SWOOLE}
                 - COMPOSER_GLOBAL_INSTALL=${WORKSPACE_COMPOSER_GLOBAL_INSTALL}
                 - INSTALL_WORKSPACE_SSH=${WORKSPACE_INSTALL_WORKSPACE_SSH}
                 - PUID=${WORKSPACE_PUID}
@@ -27,169 +53,206 @@ services:
                 - NODE_VERSION=${WORKSPACE_NODE_VERSION}
                 - YARN_VERSION=${WORKSPACE_YARN_VERSION}
                 - TZ=${WORKSPACE_TIMEZONE}
-            dockerfile: "Dockerfile-${PHP_VERSION}"
-        volumes_from:
-            - applications
+        links:
+            - docker-in-docker
         volumes:
-            - ${WORKSPACE_XDEBUG_CONF}:/etc/php/7.1/cli/conf.d/xdebug.ini
-            - ${WORKSPACE_CRONTAB}:/etc/cron.d
+            - ${APP_CODE_LOCAL_PATH}:${APP_CODE_CONTAINER_PATH}${APP_CODE_CONTAINER_FLAG}
         extra_hosts:
             - "dockerhost:${DOCKER_HOST_IP}"
         tty: true
+        environment:
+            - PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
+            - DOCKER_HOST=tcp://docker-in-docker:2375
+        networks:
+            - frontend
+            - backend
 
-### PHP-FPM Container #######################################
-
+    ### PHP-FPM Container #######################################
     php-fpm:
         build:
             context: ./php-fpm
             args:
+                - PHP_VERSION=${PHP_VERSION}
                 - INSTALL_XDEBUG=${PHP_FPM_INSTALL_XDEBUG}
                 - INSTALL_SOAP=${PHP_FPM_INSTALL_SOAP}
                 - INSTALL_ZIP_ARCHIVE=${PHP_FPM_INSTALL_ZIP_ARCHIVE}
                 - INSTALL_PHPREDIS=${PHP_FPM_INSTALL_PHPREDIS}
                 - INSTALL_MEMCACHED=${PHP_FPM_INSTALL_MEMCACHED}
                 - INSTALL_MONGO=${PHP_FPM_INSTALL_MONGO}
-            dockerfile: Dockerfile-${PHP_VERSION}
-        volumes_from:
-            - applications
+                - INSTALL_OPCACHE=${PHP_FPM_INSTALL_OPCACHE}
         volumes:
-            - ${PHP_FPM_XDEBUG_CONF}:/etc/php/7.1/cli/conf.d/xdebug.ini
-            - ${PHP_FPM_INI_CONF}:/usr/local/etc/php/conf.d/site.ini
-            - ${PHP_FPM_POOL_CONF}:/usr/local/etc/php-fpm.d/site.pool.ini
+            - ./php-fpm/php.ini:/usr/local/etc/php/php.ini
+            - ./php-fpm/xdebug.ini:/etc/php/7.1/cli/conf.d/xdebug.ini
+            - ./php-fpm/site.ini:/usr/local/etc/php/conf.d/site.ini
+            - ./php-fpm/site.pool.ini:/usr/local/etc/php-fpm.d/site.pool.ini
+            - ${APP_CODE_LOCAL_PATH}:${APP_CODE_CONTAINER_PATH}${APP_CODE_CONTAINER_FLAG}
         expose:
             - "9000"
-        links:
-            - workspace
         extra_hosts:
             - "dockerhost:${DOCKER_HOST_IP}"
         environment:
             - PHP_IDE_CONFIG=${PHP_IDE_CONFIG}
+            - DOCKER_HOST=tcp://docker-in-docker:2375
+        depends_on:
+            - workspace
+        networks:
+            - backend
+        links:
+            - docker-in-docker
 
-### PHP Worker Container #####################################
-
+    ### PHP Worker Container #####################################
     php-worker:
-      build:
-        context: ./php-worker
-        dockerfile: "Dockerfile-${PHP_VERSION}"
-      volumes_from:
-        - applications
-      volumes:
-            - ${PHP_WORKER_SUPERVISORD_CONF}:/etc/supervisord.conf
-      depends_on:
-        - workspace
-      extra_hosts:
-        - "dockerhost:${DOCKER_HOST_IP}"
+        build:
+            context: ./php-worker
+            args:
+                - PHP_VERSION=${PHP_VERSION}
+                - INSTALL_SOAP=${PHP_WORKER_INSTALL_SOAP}
+                - INSTALL_ZIP_ARCHIVE=${PHP_WORKER_INSTALL_ZIP_ARCHIVE}
+                - PUID=${PHP_WORKER_PUID}
+                - PGID=${PHP_WORKER_PGID}
+        links:
+            - docker-in-docker
+        volumes:
+            - ${APP_CODE_LOCAL_PATH}:${APP_CODE_CONTAINER_PATH}${APP_CODE_CONTAINER_FLAG}
+            - ./php-worker/supervisord.d:/etc/supervisord.d
+        depends_on:
+            - workspace
+        extra_hosts:
+            - "dockerhost:${DOCKER_HOST_IP}"
 
-### Nginx Server Container ##################################
+    ### Laravel Echo Server #######################################
+    laravel-echo-server:
+        build:
+            context: ./laravel-echo-server
+        volumes:
+            - ./laravel-echo-server/laravel-echo-server.json:/app/laravel-echo-server.json:ro
+        ports:
+            - "${LARAVEL_ECHO_SERVER_PORT}:6001"
+        links:
+            - redis
+        networks:
+            - frontend
+            - backend
 
+    ### Nginx Server Container ##################################
     nginx:
         build:
             context: ./nginx
             args:
-                - PHP_UPSTREAM=php-fpm
-        volumes_from:
-            - applications
+                - PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER}
+                - PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT}
+                - CHANGE_SOURCE=${CHANGE_SOURCE}
         volumes:
+            - ${APP_CODE_LOCAL_PATH}:${APP_CODE_CONTAINER_PATH}${APP_CODE_CONTAINER_FLAG}
             - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
             - ${NGINX_SITES_PATH}:/etc/nginx/sites-available
             - ${NGINX_CONF}:/etc/nginx/nginx.conf
+            - ${NGINX_SSL_PATH}:/etc/nginx/ssl
         ports:
             - "${NGINX_HOST_HTTP_PORT}:80"
             - "${NGINX_HOST_HTTPS_PORT}:443"
-        links:
+        depends_on:
             - php-fpm
+        links:
+            - docker-in-docker
+        networks:
+            - frontend
+            - backend
 
-### MySQL Container #########################################
-
+    ### MySQL Container #########################################
     mysql:
         build:
             context: ./mysql
+            args:
+                - MYSQL_VERSION=${MYSQL_VERSION}
         environment:
             - MYSQL_DATABASE=${MYSQL_DATABASE}
             - MYSQL_USER=${MYSQL_USER}
             - MYSQL_PASSWORD=${MYSQL_PASSWORD}
             - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
         volumes:
-            - mysql:/var/lib/mysql
+            - ${DATA_PATH_HOST}/mysql:/var/lib/mysql
             - ${MYSQL_CONF}:/etc/mysql/conf.d/my.cnf
         ports:
             - "${MYSQL_PORT}:3306"
+        networks:
+            - backend
 
-
-### Redis Container #########################################
-
+    ### Redis Container #########################################
     redis:
         build: ./redis
         volumes:
-            - redis:/data
+            - ${DATA_PATH_HOST}/redis:/data
         ports:
-            - "6379:6379"
+            - "${REDIS_PORT}:6379"
+        networks:
+            - backend
 
-### Memcached Container #####################################
-
+    ### Memcached Container #####################################
     memcached:
         build: ./memcached
         volumes:
-            - memcached:/var/lib/memcached
+            - ${DATA_PATH_HOST}/memcached:/var/lib/memcached
         ports:
             - "${MEMCACHED_HOST_PORT}:11211"
-        links:
+        depends_on:
             - php-fpm
+        networks:
+            - backend
 
-### Elasticsearch Container #######################################
-
+    ### Elasticsearch Container #######################################
     elasticsearch:
         build: ./elasticsearch
         volumes:
-            - elasticsearch-data:/usr/share/elasticsearch/data
-            - elasticsearch-plugins:/usr/share/elasticsearch/data
+            - elasticsearch:/usr/share/elasticsearch/data
+        environment:
+            - cluster.name=devdock-cluster
+            - bootstrap.memory_lock=true
+            - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
         ports:
             - "${ELASTICSEARCH_HOST_HTTP_PORT}:9200"
             - "${ELASTICSEARCH_HOST_TRANSPORT_PORT}:9300"
         depends_on:
             - php-fpm
+        networks:
+            - frontend
+            - backend
 
-### phpMyAdmin Container ##################################
-
-    phpmyadmin:
-        build: ./phpmyadmin
-        environment:
-            PMA_ARBITRARY: 1
-            MYSQL_USER: homestead
-            MYSQL_PASSWORD: secret
-            MYSQL_ROOT_PASSWORD: root
+    ### MongoDB Container #######################################
+    mongo:
+        build: ./mongo
         ports:
-            - "${PMA_PORT}:80"
+            - "${MONGODB_PORT}:27017"
+        volumes:
+            - ${DATA_PATH_HOST}/mongo:/data/db
+
+    ### Certbot #########################################
+    certbot:
+        build:
+            context: ./certbot
+        volumes:
+            - ./data/certbot/certs/:/var/certs
+            - ./certbot/letsencrypt/:/var/www/letsencrypt
+        environment:
+            - CN="fake.domain.com"
+            - EMAIL="fake.email@gmail.com"
+        networks:
+            - frontend
+
+    ### Adminer ###########################################
+    adminer:
+        build:
+            context: ./adminer
+            args:
+                - INSTALL_MSSQL=${ADM_INSTALL_MSSQL}
+        ports:
+            - "${ADM_PORT}:8080"
         depends_on:
-            - "${PMA_DB_ENGINE}"
-
-### MongoDB Container #######################################
-
-    mongo:
-      build: ./mongo
-      ports:
-        - "${MONGODB_PORT}:27017"
-      volumes:
-        - mongo:/data/db
-
-
-
-
-### Volumes Setup ###########################################
-
-volumes:
-    mysql:
-        driver: "local"
-    memcached:
-        driver: "local"
-    redis:
-        driver: "local"
-    phpmyadmin:
-        driver: "local"
-    elasticsearch-data:
-        driver: "local"
-    elasticsearch-plugins:
-        driver: "local"
-    mongo:
-        driver: "local"
-
+            - php-fpm
+        networks:
+            - frontend
+            - backend

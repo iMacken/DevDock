@@ -1,7 +1,5 @@
 FROM redis:latest
 
-MAINTAINER Macken <rystlee100@gmail.com>
-
 #COPY redis.conf /usr/local/etc/redis/redis.conf
 
 VOLUME /data
