@@ -48,13 +48,14 @@ cp .env.example .env
 查看 docker-compose.yml 文件：
 
 ```yml
-applications:
-  image: tianon/true
-  volumes:
-    - ${APPLICATION}:/var/www
+docker-in-docker:
+        image: docker:dind
+        privileged: true
+        volumes:
+            - ${APP_CODE_LOCAL_PATH}:${APP_CODE_CONTAINER_PATH}
 ```
 
-DevDock 默认将同级目录下的所有文件映射到数据卷容器 applications 中。其实可以你完全可以灵活配置，添加多个映射，例如：
+DevDock 默认将同级目录下的所有文件映射到数据卷容器 docker-in-docker 中。其实可以你完全可以灵活配置，添加多个映射，例如：
 
 ```yml
 volumes:
