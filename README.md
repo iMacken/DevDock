@@ -238,15 +238,15 @@ supervisor 进程管理工具安装在 php-worker 容器中，修改配置重启
 - 打开 /etc/hosts 文件，映射 laravel.dev 到 127.0.0.1
 
 ```bash
-127.0.0.1    laravel.dev
+127.0.0.1    laravel.test
 ```
 
-- 打开你的浏览器访问 `http://laravel.dev`
+- 打开你的浏览器访问 `http://laravel.test`
 
 你可以在 nginx 配置文件自定义服务器名称，如下：
 
 ```conf
-server_name laravel.dev;
+server_name laravel.test;
 ```
 
 ### 使用 Elasticsearch
