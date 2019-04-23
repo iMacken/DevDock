@@ -322,6 +322,23 @@ RUN if [ ${INSTALL_SWOOLE} = true ]; then \
   && php -m | grep -q 'swoole' \
   ;fi
 
+###########################################################################
+# Deployer:
+###########################################################################
+
+USER root
+
+ARG INSTALL_DEPLOYER=false
+
+RUN if [ ${INSTALL_DEPLOYER} = true ]; then \
+    # Install the Deployer
+    # Using Phar as currently there is no support for laravel 4 from composer version
+    # Waiting to be resolved on https://github.com/deployphp/deployer/issues/1552
+    curl -LO https://deployer.org/deployer.phar && \
+    mv deployer.phar /usr/local/bin/dep && \
+    chmod +x /usr/local/bin/dep \
+;fi
+
 #--------------------------------------------------------------------------
 # Final Touch
 #--------------------------------------------------------------------------
